@@ -20,9 +20,11 @@ class User(db.Model):
     @classmethod
     def register(cls, name, pw, email = None):
         pw_hash = cls.make_pw_hash(name, pw)
-        return User(name = name,
-                    pw_hash = pw_hash,
-                    email = email)
+        u = User(name = name,
+                 pw_hash = pw_hash,
+                 email = email)
+        u.put()
+        return u
 
     @classmethod
     def login(cls, name, pw):
