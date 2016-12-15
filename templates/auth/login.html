@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+<div class="col-xs-12">
+    <h4>Login</h4>
+</div>
+<div class="col-md-4 col-sm-4 col-lg-4">
+    <form method="post">
+        <div class="form-group {% if name_error %}has-error{% endif %}">
+            <label class="control-label">Username</label>
+            <input name="name" type="text" class="form-control" placeholder="Username" value="{{user_name}}">
+            <span class="help-block">{{name_error}}</span>
+        </div>
+        <div class="form-group {% if password_error %}has-error{% endif %}">
+            <label class="control-label">Password</label>
+            <input name="password" type="password" class="form-control" placeholder="Password">
+            <span class="help-block">{{password_error}}</span>
+        </div>
+        <div class="form-group {% if login_error %}has-error{% endif %}">
+            <span class="help-block">{{login_error}}</span>
+        </div>
+        <button type="submit" class="btn btn-default">Login</button>
+    </form>
+</div>
+{% endblock content%}

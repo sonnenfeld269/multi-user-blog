@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<form method="post">
+    <div class="form-group">
+        <label>Name </label>
+        <input name="name" type="text" class="form-control" placeholder="Name" value="{{user_name}}">
+        <span class="help-inline">{{user_error}}</span>
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input name="password" type="password" class="form-control" placeholder="Password">
+        <span class="help-inline">{{password_error}}</span>
+    </div>
+    <div class="form-group">
+        <label>Verify Password</label>
+        <input name="password_repeat" type="password" class="form-control" placeholder="Verify Password">
+        <span class="help-inline">{{password_repeat_error}}</span>
+    </div>
+    <div class="form-group">
+        <label>Email address (optional)</label>
+        <input name="email" type="text" class="form-control" placeholder="Email" value="{{user_email}}">
+        <span class="help-inline">{{email_error}}</span>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

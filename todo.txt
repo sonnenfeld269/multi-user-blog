@@ -1,0 +1,15 @@
+1)  Registration Use Case
+    User calls the page. User should see a blog with navigation links to
+    Register and Login. User clicks on Register and comes to a form.
+    After submitting we take the form data and validate it. If valid we
+    store the user in our database with a hashed+salt password. User will be
+    then redirected to the blog start page. This time the navs change to Logout.
+
+2)  Login Use Case
+    User calls the page. User should see a blog with navigation links to
+    Register and Login. User clicks on Login and comes to a form.
+    After submitting we take the form data and validate it. If valid we
+    then we log the user by setting the cookie, so the browser knows there is
+    a user logged. We dont store a logged attribute inside the database, because
+    cookies are a more flexible, faster approach. Then the user will be
+    then redirected to the blog start page. This time the navs change to Logout.

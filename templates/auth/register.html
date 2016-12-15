@@ -1,0 +1,34 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="col-xs-12">
+    <h4>Register</h4>
+</div>
+<div class="col-md-4 col-sm-4 col-lg-4">
+    <form method="post">
+
+        <div class="form-group {% if name_error %}has-error{% endif %}">
+            <label class="control-label">Name </label>
+            <input name="name" type="text" class="form-control" placeholder="Name" value="{{user_name}}">
+            <span class="help-block">{{name_error}}</span>
+        </div>
+        <div class="form-group {% if email_error %}has-error{% endif %}">
+            <label class="control-label">Email address</label>
+            <input name="email" type="text" class="form-control" placeholder="Email" value="{{user_email}}">
+            <span class="help-block">{{email_error}}</span>
+        </div>
+        <div class="form-group {% if password_error %}has-error{% endif %}">
+            <label class="control-label">Password</label>
+            <input name="password" type="password" class="form-control" placeholder="Password">
+            <span class="help-block">{{password_error}}</span>
+        </div>
+        <div class="form-group {% if password_repeat_error %}has-error{% endif %}">
+            <label class="control-label">Verify Password</label>
+            <input name="password_repeat" type="password" class="form-control" placeholder="Verify Password">
+            <span class="help-block">{{password_repeat_error}}</span>
+        </div>
+        <button type="submit" class="btn btn-default">Register</button>
+    </form>
+</div>
+
+
+{% endblock content%}
