@@ -1,6 +1,7 @@
 import hashlib, hmac, os, re # python libraries
 import webapp2, jinja2 # external libraries
 import models # own-created libraries
+import handlers.user_handler, handlers.post_handler
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -21,6 +22,7 @@ class Handler(webapp2.RequestHandler):
     """
 
     def initialize(self, *a, **kw):
+        print "handler is: " + user_handler.initialize()
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.get_cookie('user_id')
         self.user = uid and user.User.by_id(int(uid))
