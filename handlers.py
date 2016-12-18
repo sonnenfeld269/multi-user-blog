@@ -1,6 +1,6 @@
 import hashlib, hmac, os, re # python libraries
 import webapp2, jinja2 # external libraries
-import user, post # own-created libraries
+import models # own-created libraries
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
