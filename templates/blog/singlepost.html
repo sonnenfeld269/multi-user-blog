@@ -1,5 +1,12 @@
 <div class="col-xs-12">
-    <h3>{{p.title}} <small>created on {{p.created.strftime("%b %d, %Y")}}</small></h3>
+    <h3>{{p.title}}
+      <small>
+        created on {{p.created.strftime("%b %d, %Y")}}
+        {% if user and user.key().id() == p.author.key().id() %}
+          | <a href="blog/edit/{{p.key().id()}}">edit</a> | <a href="blog/delete/{{p.key().id()}}">delete</a>
+        {% endif %}
+      </small>
+    </h3>
     <hr>
 </div>
 <div class="col-xs-12">

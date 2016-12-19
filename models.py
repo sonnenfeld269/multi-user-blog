@@ -51,6 +51,7 @@ class User(db.Model):
 class Post(db.Model):
     title = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
+    author = db.ReferenceProperty(User, required = False)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
 
@@ -58,17 +59,28 @@ class Post(db.Model):
     def by_id(cls, pid):
         return Post.get_by_id(pid)
 
+    def get_id(self):
+        return Post.get_by_id(self)
+
     @classmethod
     def get_all(cls):
         return Post.all().order('-created')
 
     @classmethod
-    def add_post(cls, post_title, post_content):
+    def add_post(cls, post_title, post_content, author_id):
 
-        p = Post(title = post_title,content=post_content)
+        p = Post(title = post_title,content=post_content,author=User.by_id(author_id))
         p.content = p.content.replace('\n', '<br>')
         p.put()
         return p
+
+    @classmethod
+    def delete_post(cls, pid):
+        print "inside delete"
+        key = db.Key.from_path('Post', int(pid))
+        post = db.get(key)
+        post.delete()
+
 
     """
     with an own render function it is a lot easier to render the posts

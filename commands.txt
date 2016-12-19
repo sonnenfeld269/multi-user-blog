@@ -3,3 +3,7 @@
 -)  to start the app on localhost:
 
       dev_appserver.py app.yaml
+
+-) to deploy:
+
+      gcloud app deploy --project multiuser-blog-151905 -v v1

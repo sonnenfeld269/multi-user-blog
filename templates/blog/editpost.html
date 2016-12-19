@@ -1,0 +1,21 @@
+{% extends "base.html" %} {% block content %}
+<div class="col-xs-12">
+    <h4>Edit Post</h4>
+</div>
+<div class="col-md-5 col-sm-5 col-lg-5">
+    <form method="post">
+        <div class="form-group {% if title_error %}has-error{% endif %}">
+            <label class="control-label">Title</label>
+            <input name="post_title" type="text" class="form-control" placeholder="Title" value="{{post.title}}">
+            <span class="help-block">{{title_error}}</span>
+        </div>
+        <div class="form-group {% if content_error %}has-error{% endif %}">
+            <label class="control-label">Content</label>
+            <textarea name="post_content" rows="15" class="form-control" placeholder="Content">{{post.content | safe}}</textarea>
+            <span class="help-block">{{content_error}}</span>
+        </div>
+        <a class="btn btn-default" href="/blog" role="button">Cancel</a>
+        <button type="submit" class="btn btn-default">Save</button>
+    </form>
+</div>
+{% endblock content%}
