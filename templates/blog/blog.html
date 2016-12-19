@@ -1,1 +1,1 @@
-{% extends "base.html" %} {% block content %} {% for post in posts %} {{post.render()}} {% endfor %} {% endblock content%}
+{% extends "base.html" %} {% block content %} {% for post in posts %} {{handler.render_str("blog/singlepost.html",p=post) | safe}} {% endfor %} {% endblock content%}

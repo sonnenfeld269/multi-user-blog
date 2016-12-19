@@ -1,6 +1,7 @@
 import hashlib, hmac, random
 from string import letters
 from google.appengine.ext import db
+import main
 
 class User(db.Model):
     name = db.StringProperty(required = True)
@@ -65,6 +66,7 @@ class Post(db.Model):
     def add_post(cls, post_title, post_content):
 
         p = Post(title = post_title,content=post_content)
+        p.content = p.content.replace('\n', '<br>')
         p.put()
         return p
 

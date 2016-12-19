@@ -1,7 +1,7 @@
 import hashlib, hmac, os, re # python libraries
 import webapp2, jinja2 # external libraries
-import models # own-created libraries
-import handlers.user_handler, handlers.post_handler
+from models import Post, User # own-created libraries
+# import handlers.user_handler as user_handler, handlers.post_handler as post_handler
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -22,10 +22,9 @@ class Handler(webapp2.RequestHandler):
     """
 
     def initialize(self, *a, **kw):
-        print "handler is: " + user_handler.initialize()
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.get_cookie('user_id')
-        self.user = uid and user.User.by_id(int(uid))
+        self.user = uid and User.by_id(int(uid))
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -111,10 +110,10 @@ class RegisterHandler(Handler):
 
         if not any_error:
             # if user exists, re-render form with error message
-            if user.User.by_name(user_name):
+            if User.by_name(user_name):
                 self.render("auth/register.html", name_error="User already exists!")
             else:
-                u = user.User.register(user_name,user_password,user_email)
+                u = User.register(user_name,user_password,user_email)
                 self.login(u)
                 self.redirect("/blog")
         else:
@@ -151,7 +150,7 @@ class LoginHandler(Handler):
         if any_error:
             self.render("auth/login.html", **param_list)
         else:
-            u = user.User.login(user_name,user_password)
+            u = User.login(user_name,user_password)
             if not u:
                 param_list['login_error']="Username or Password is invalid!"
                 self.render("auth/login.html", **param_list)
@@ -177,8 +176,8 @@ class BlogHandler(Handler):
 
     """ Get all posts from the database and render them """
     def get(self):
-        posts = post.Post.get_all()
-        self.render("blog/blog.html", posts=posts)
+        posts = Post.get_all()
+        self.render("blog/blog.html", posts=posts, handler=self)
 
 class PostHandler(Handler):
 
@@ -205,7 +204,7 @@ class PostHandler(Handler):
             self.render("blog/addpost.html", **param_list)
         else:
             # add post to database
-            p = post.Post.add_post(post_title,post_content)
+            p = Post.add_post(post_title,post_content)
             self.redirect('/blog/%s' % str(p.key().id()))
 
 class SinglePostHandler(Handler):
@@ -223,7 +222,7 @@ class SinglePostHandler(Handler):
             self.error(404)
             return
         # else render "permalink" with the post
-        self.render("blog/permalink.html", post = post)
+        self.render("blog/permalink.html", post = post, handler=self)
 
 class MainPage(Handler):
 
