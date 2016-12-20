@@ -11,20 +11,21 @@
     <script type="text/javascript" src="/js/bootstrap.min.js" defer></script>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/custom.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower|Raleway" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
-        <div class="row seperator">
+        <div class="row">
             <div class="col-lg-4">
-                <h3><a class="title" href="/blog">Multi User Blog</a></h3>
+                <h1><a class="title" href="/blog">SonnenBlog!</a></h1>
             </div>
             <div class="col-lg-7">
 
                 <nav>
                     <ul>
                         {% if user %} Signed in as <span class="signedin">{{user.name}}</span> |
-                        <li><a href="#">my posts</a></li>
+                        <li><a href="/blog/myposts">my posts</a></li>
                         <li><a href="/blog/addpost">add post</a></li>
                         <li><a href="/logout">logout</a></li> {% else %}
 

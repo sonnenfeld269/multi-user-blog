@@ -12,6 +12,9 @@ class User(db.Model):
     def by_id(cls, uid):
         return User.get_by_id(uid)
 
+    def get_id(self):
+        return self.key().id()
+
     @classmethod
     def by_name(cls, name):
         u = User.all().filter('name =', name).get()
@@ -51,7 +54,9 @@ class User(db.Model):
 class Post(db.Model):
     title = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
-    author = db.ReferenceProperty(User, required = False)
+    author = db.ReferenceProperty(User, required = True, collection_name="posts")
+    likes = db.IntegerProperty(required = False,default=0)
+    liked_by_users = db.StringListProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
 
@@ -59,18 +64,42 @@ class Post(db.Model):
     def by_id(cls, pid):
         return Post.get_by_id(pid)
 
+    # returns id of post
     def get_id(self):
-        return Post.get_by_id(self)
+        return self.key().id()
 
     @classmethod
     def get_all(cls):
         return Post.all().order('-created')
 
     @classmethod
-    def add_post(cls, post_title, post_content, author_id):
+    def get_by_user(cls, userid):
+        return User.by_id(userid).posts
 
-        p = Post(title = post_title,content=post_content,author=User.by_id(author_id))
+    @classmethod
+    def add_post(cls, post_title, post_content, user_id):
+
+        p = Post(title = post_title,content=post_content,author=User.by_id(user_id))
         p.content = p.content.replace('\n', '<br>')
+        p.put()
+        return p
+
+    @classmethod
+    def add_like(cls, post_id, user_id):
+        p = Post.by_id(post_id)
+        u = User.by_id(user_id)
+        # if post is not inside liked_posts and if post author
+        if u.name not in p.liked_by_users and p.author.get_id() != user_id:
+            p.likes = p.likes + 1
+            p.liked_by_users.append(u.name)
+            p.put()
+
+    @classmethod
+    def update_post(cls, post_id, post_title, post_content):
+
+        p = Post.by_id(post_id)
+        p.title = post_title
+        p.content = post_content
         p.put()
         return p
 
