@@ -1,6 +1,6 @@
 {% extends "base.html" %}
   {% block content %}
-    {% for post in posts %}
-      {{ handler.render_str("blog/singlepost.html",p=post) | safe }}
-    {% endfor %}
+  {% for post in posts %}
+    {{ handler.render_str("blog/singlepost.html",p=post,commentbox=commentbox) | safe }}
+  {% endfor %}
   {% endblock content %}

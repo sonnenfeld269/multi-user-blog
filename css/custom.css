@@ -62,11 +62,17 @@ form {
 }
 
 .post {
-  margin: 0 0 17px 0;
+    margin: 0 0 17px 0;
 }
 
 .likebox {
-  margin:15px 0 0 0;
+    font-size: 20px;
+    margin: 20px 0 0 0;
+}
+
+.like_text {
+    font-family: "Indie Flower";
+    color: #286090;
 }
 
 .row {
@@ -75,4 +81,17 @@ form {
 
 .title, .title:hover {
     text-decoration: none;
+}
+
+.commentbox textarea {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 10px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    outline: 0;
+}
+
+.commentform {
+    padding: 10px 0 0 0;
 }

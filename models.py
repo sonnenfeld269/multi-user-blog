@@ -59,6 +59,8 @@ class Post(db.Model):
     liked_by_users = db.StringListProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
+    show_comments = db.BooleanProperty(default=False)
+
 
     @classmethod
     def by_id(cls, pid):
@@ -104,11 +106,20 @@ class Post(db.Model):
         return p
 
     @classmethod
-    def delete_post(cls, pid):
-        print "inside delete"
-        key = db.Key.from_path('Post', int(pid))
-        post = db.get(key)
+    def delete_post(cls, post_id):
+        post = cls.by_id(int(post_id))
         post.delete()
+
+    def set_show_comments(self,val):
+        self.show_comments = val
+        self.put()
+
+    @classmethod
+    def add_comment(cls, post_id, user_id, comment_content):
+        p = Post.by_id(post_id)
+        u = User.by_id(user_id)
+        c = Comment(post=p, user=u, content=comment_content)
+        c.put()
 
 
     """
@@ -118,3 +129,28 @@ class Post(db.Model):
     def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         return render_str("blog/singlepost.html", p = self)
+
+class Comment(db.Model):
+    post = db.ReferenceProperty(Post, required = True, default=None, collection_name="comments")
+    user = db.ReferenceProperty(User, required = True)
+    content = db.StringProperty(required = True,multiline=True)
+
+    @classmethod
+    def by_id(cls, comment_id):
+        return Comment.get_by_id(comment_id)
+
+    def get_id(self):
+        return self.key().id()
+
+    def add_comment(self):
+        self.put()
+
+    def delete_comment(self):
+        self.delete()
+
+    def set_content(self, content):
+        self.content = content
+        self.put()
+
+    def get_content(self):
+        return self.content
