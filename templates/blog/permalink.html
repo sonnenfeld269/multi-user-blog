@@ -1,4 +1,4 @@
 {% extends "base.html" %}
   {% block content %}
-    {{handler.render_str("blog/singlepost.html", p=post) | safe }}
+    {{ single_post | safe }}
   {% endblock content%}

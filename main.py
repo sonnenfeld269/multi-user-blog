@@ -168,30 +168,41 @@ class LoginHandler(Handler):
                 self.login(u)
                 self.redirect("/blog")
 
-
 class LogoutHandler(Handler):
 
     def get(self):
         self.logout()
         self.redirect('/blog')
 
-
 class BlogHandler(Handler):
 
     """ Get all posts from the database and render them """
 
     def get(self):
-        posts = Post.get_all()
-        self.render("blog/blog.html", posts=posts, handler=self)
+        self.render_blog()
+
+    def render_blog(self, **kw):
+        if kw.has_key('user_posts'):
+            posts = kw['user_posts']
+        else:
+            posts = Post.get_all()
+
+        rendered_posts = ""
+        for post in posts:
+            if kw.has_key('rendered_comments'):
+                rendered_posts += self.render_str("blog/singlepost.html", p=post, rendered_comments=kw['rendered_comments'])
+            else:
+                rendered_posts += self.render_str("blog/singlepost.html", p=post)
+
+        self.render("blog/blog.html", rendered_posts=rendered_posts, **kw)
 
 # POST handlers
 
-
-class UserPostHandler(Handler):
+class UserPostHandler(BlogHandler):
 
     def get(self):
         user_posts = Post.get_by_user(self.user.get_id())
-        self.render("blog/blog.html", posts=user_posts, handler=self)
+        self.render_blog(user_posts=user_posts)
 
 class PostHandler(Handler):
 
@@ -234,7 +245,8 @@ class SinglePostHandler(Handler):
             self.error(404)
             return
         # else render "permalink" with the post
-        self.render("blog/permalink.html", post=post, handler=self)
+        single_post = self.render_str("blog/singlepost.html", p=post)
+        self.render("blog/permalink.html", single_post=single_post)
 
 class EditPostHandler(Handler):
 
@@ -288,38 +300,46 @@ class DeletePostHandler(Handler):
 
 # COMMENT handlers
 
-class CommentPostHandler(Handler):
+class CommentPostHandler(BlogHandler):
 
     def get(self, post_id):
         post = Post.by_id(int(post_id))
         if post.show_comments:
-            print "is now: " + str(post.show_comments) + " and setting to false"
             post.set_show_comments(False)
         else:
-            print "is now: " + str(post.show_comments) + " and setting to true"
             post.set_show_comments(True)
 
-        self.redirect('/blog')
+        rendered_comments = self.render_comments(post=post)
+        self.render_blog(rendered_comments=rendered_comments)
 
     def post(self, post_id):
         comment_content = self.request.get("comment_content")
-        Post.add_comment(int(post_id), int(
-            self.user.get_id()), comment_content)
+        Post.add_comment(int(post_id), int(self.user.get_id()), comment_content)
         self.redirect('/blog')
 
-class CommentEditHandler(Handler):
+    def render_comments(self, post, comment_to_edit=None):
+        print "inside render comments"
+        if comment_to_edit:
+            comment_to_edit=Comment.by_id(int(comment_id))
+
+        rendered_comments = ""
+        for comment in post.comments:
+            if comment_to_edit and comment.get_id == comment_to_edit.get_id:
+                rendered_comments += self.render_str("blog/editcomment.html", comment=comment_to_edit)
+            else:
+                rendered_comments += self.render_str("blog/singlecomment.html", comment=comment)
+        return rendered_comments
+
+class CommentEditHandler(CommentPostHandler):
 
     def get(self, comment_id):
-        commentbox = self.render_str("blog/editcomment.html", comment=Comment.by_id(int(comment_id)))
-        print commentbox
-        posts = Post.get_all()
-        self.render("blog/blog.html", posts=posts, commentbox=commentbox, handler=self)
+        self.render_comments(comment_id)
 
     def post(self, comment_id):
         comment_content = self.request.get("comment_content")
         comment = Comment.by_id(int(comment_id))
         comment.set_content(comment_content)
-        
+
         self.redirect('/blog')
 
 class CommentDeleteHandler(Handler):

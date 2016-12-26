@@ -143,6 +143,7 @@ class Comment(db.Model):
         return self.key().id()
 
     def add_comment(self):
+        self.content = self.content.replace('\n', '<br>')
         self.put()
 
     def delete_comment(self):
@@ -150,6 +151,7 @@ class Comment(db.Model):
 
     def set_content(self, content):
         self.content = content
+        self.content = self.content.replace('\n', '<br>')
         self.put()
 
     def get_content(self):

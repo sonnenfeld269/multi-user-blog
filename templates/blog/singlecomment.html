@@ -1,0 +1,10 @@
+<h4>Comment by {{comment.user.name}}
+  <small>
+    {% if user and user.get_id() == comment.user.get_id() %}
+      | <a href="/blog/comment/edit/{{comment.get_id()}}">edit</a> | <a href="/blog/comment/delete/{{comment.get_id()}}">delete</a>
+    {% endif %}
+  </small>
+</h4>
+<p>
+  {{ comment.content }}
+</p>

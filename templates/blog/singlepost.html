@@ -19,12 +19,9 @@
             {% if user %}
               <a class="btn btn-default" href="/blog/like/{{p.get_id()}}">Like</a>
             {% endif %}
-            <!-- TODO how to check if collection "comments" has any comments or size is > 0 -->
-            {% if p.comments.count > 0 %}
             <a class="btn btn-default" href="/blog/comment/{{p.get_id()}}">
-              Show Comments
+              {% if p.show_comments %}Hide{% else %}Show{% endif %} Comments
             </a>
-            {% endif %}
 
         </div>
         {% if user and p.show_comments %}
@@ -39,23 +36,7 @@
         {% endif %}
 
         {% if p.show_comments %}
-          {% for comment in p.comments %}
-          <h4>Comment by {{comment.user.name}}
-            <small>
-              {% if user and user.get_id() == comment.user.get_id() %}
-                | <a href="/blog/comment/edit/{{comment.get_id()}}">edit</a> | <a href="/blog/comment/delete/{{comment.get_id()}}">delete</a>
-              {% endif %}
-            </small>
-          </h4>
-          <!-- TODO if path = blog/comment/edit/comment-id render editcomment.html else show comments-->
-            {% if commentbox and user.get_id() == comment.user.get_id() %}
-              {{commentbox | safe}}
-            {% else %}
-              <p>
-                {{ comment.content }}
-              </p>
-            {% endif %}
-          {% endfor %}
+          {{rendered_comments|safe}}
         {% endif %}
     </div>
 </div>
