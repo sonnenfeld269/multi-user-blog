@@ -1,9 +1,9 @@
 import hashlib, hmac, random
 from string import letters
 from google.appengine.ext import db
-import main
+from handlers.base_handler import BaseHandler
 
-class User(db.Model):
+class User(db.Model, BaseHandler):
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
     email = db.StringProperty()
@@ -51,7 +51,10 @@ class User(db.Model):
         salt = h.split(',')[0]
         return h == cls.make_pw_hash(name, password, salt)
 
-class Post(db.Model):
+    def printSomeStuff():
+        return "some stuff"
+
+class Post(db.Model,BaseHandler):
     title = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
     author = db.ReferenceProperty(User, required = True, collection_name="posts")
@@ -127,8 +130,9 @@ class Post(db.Model):
     on different pages
     """
     def render(self):
-        self._render_text = self.content.replace('\n', '<br>')
-        return render_str("blog/singlepost.html", p = self)
+        #self._render_text = self.content.replace('\n', '<br>')
+        #return _render_str("blog/singlepost.html", p = self)
+        return self.render_str("blog/singlepost.html", p = self)
 
 class Comment(db.Model):
     post = db.ReferenceProperty(Post, required = True, default=None, collection_name="comments")
