@@ -53,7 +53,7 @@ class Comment(db.Model):
 
 BaseHandler is our parent module, which is responsible for handling the responses to the browser using jinja2.
 
-![handler inheritance](webapp.png)
+![handler inheritance](webapp2.png)
 
 #### User actions
 
