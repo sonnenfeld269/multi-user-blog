@@ -23,7 +23,10 @@
 
 ## cookies
 
-1) Why cookies?
+1)  Why cookies?
+
+    cookies hand hold little piece of data. that way we dont always have to look up in the database if the user is logged in, we can store
+    inside the browser and retrieve the information from the browser. 
 
 2) What is the difference between "Cookie" and "Set-Cookie" in the Response or Request Header of the Browser?
 

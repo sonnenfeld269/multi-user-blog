@@ -1,63 +1,68 @@
 from base_handler import BaseHandler
-from models import Post
+import webapp2
+from models import Post, User
 
-class MainPageHandler(BaseHandler):
+class BasePostHandler(BaseHandler):
+
+    def initialize(self, *a, **kw):
+        webapp2.RequestHandler.initialize(self, *a, **kw)
+        user_id = super(BasePostHandler, self).get_cookie("user_id")
+        print user_id
+        if user_id:
+            BaseHandler.user = User.by_id(int(user_id))
+
+class BlogHandler(BasePostHandler):
 
     def get(self):
-        self.redirect("/blog")
-
-class BlogHandler(BaseHandler):
-
-    """ Get all posts from the database and render them """
-
-    def get(self):
+        print "inside bloghandler"
         self.render_posts()
 
-    def render_posts(self, **kw):
-        if kw.has_key('user_posts'):
-            posts = kw['user_posts']
-        else:
-            posts = Post.get_all()
+    def render_posts(self):
+
+        """
+        1.  get all the posts
+        2.  render each post and save it in a single string
+        3.  pass the single string containing all rendered posts to
+            jinja2 using
+        """
+        posts = Post.get_all()
 
         rendered_posts = ""
         for post in posts:
-            if kw.has_key('rendered_comments'):
-                rendered_posts += self.render_str("blog/singlepost.html", p=post, rendered_comments=kw['rendered_comments'])
-            else:
-                rendered_posts += post.render()
+            rendered_posts += post.render()
 
-        self.render("blog/blog.html", rendered_posts=rendered_posts, **kw)
+        self.render("blog/blog.html", rendered_posts=rendered_posts)
 
-class UserPostHandler(BlogHandler):
+class UserPostHandler(BasePostHandler):
 
     """ Show all posts of one user """
 
     def get(self):
-        user_posts = Post.get_by_user(self.user.get_id())
+        user_posts = Post.get_by_user(int(self.user))
         self.render_posts(user_posts=user_posts)
 
-class PostHandler(BaseHandler):
-
-    def render_post(self, post_id):
-        post = Post.by_id(int(post_id))
-
-        if not post:
-            self.error(404)
-            return
-
-        return self.render_str("blog/singlepost.html", p=post)
-
-class AddPostHandler(PostHandler):
-
-    """ Adding a post. """
+class AddPostHandler(BasePostHandler):
 
     def get(self):
+        """
+        1.  if user exists, render "addpost.html"
+        2.  else redirect to "/login"
+        """
         if self.user:
             self.render("blog/addpost.html")
         else:
             self.redirect("/login")
 
     def post(self):
+        """
+        1.  get all the parameters from the request (form) and save them
+            into variables
+        2.  check if title and content exists, if not then put some error
+            messages into a param list
+        3.  if there is an error, render "addpost.html" with the errors inside
+            the param list. else add the post to the database and redirect
+            to page showing the single post with the url "/blog/{{\post_id}}"
+        """
         post_title = self.request.get("post_title")
         post_content = self.request.get("post_content")
         param_list = dict(post_title=post_title, post_content=post_content)
@@ -74,20 +79,21 @@ class AddPostHandler(PostHandler):
             self.render("blog/addpost.html", **param_list)
         else:
             # add post to database
-            p = Post.add_post(post_title, post_content, self.user.key().id())
+            p = Post.add_post(post_title, post_content, int(self.user))
             self.redirect('/blog/%s' % str(p.key().id()))
 
-class SinglePostHandler(PostHandler):
-
-    """ Showing a single post. """
+class SinglePostHandler(BasePostHandler):
 
     def get(self, post_id):
-
-        post = self.render_post(post_id=post_is)
+        """
+        1. get the post by post_id and save it into single_post
+        2. render it using "permalink.html" and single_post as the parameter
+        """
+        single_post = Post.by_id(int(post_id)).render()
         self.render("blog/permalink.html", single_post=single_post)
 
 
-class EditPostHandler(BaseHandler):
+class EditPostHandler(BasePostHandler):
 
     # get the id from the url "blog/some_id"
     def get(self, post_id):
@@ -123,14 +129,14 @@ class EditPostHandler(BaseHandler):
             p = Post.update_post(int(post_id), post_title, post_content)
             self.redirect('/blog/%s' % str(p.get_id()))
 
-class LikePostHandler(BaseHandler):
+class LikePostHandler(BasePostHandler):
 
     # get the id from the url "blog/some_id"
     def get(self, post_id):
         Post.add_like(int(post_id), self.user.get_id())
         self.redirect('/blog')
 
-class DeletePostHandler(BaseHandler):
+class DeletePostHandler(BasePostHandler):
 
     # get the id from the url "blog/some_id"
     def get(self, post_id):
@@ -139,7 +145,7 @@ class DeletePostHandler(BaseHandler):
 
 # COMMENT handlers
 
-class CommentPostHandler(BlogHandler):
+class PostCommentsHandler(BlogHandler):
 
     def get(self, post_id):
         post = Post.by_id(int(post_id))
@@ -171,7 +177,7 @@ class CommentPostHandler(BlogHandler):
                 rendered_comments += self.render_str("blog/singlecomment.html", comment=comment)
         return rendered_comments
 
-class CommentEditHandler(CommentPostHandler):
+class CommentEditHandler(PostCommentsHandler):
 
     def get(self, comment_id):
         self.render_comments(comment_id)
@@ -183,7 +189,7 @@ class CommentEditHandler(CommentPostHandler):
 
         self.redirect('/blog')
 
-class CommentDeleteHandler(BaseHandler):
+class CommentDeleteHandler(BasePostHandler):
 
     def get(self, comment_id):
         print "Comment id is: " + str(comment_id)

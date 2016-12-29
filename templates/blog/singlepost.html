@@ -4,7 +4,7 @@
         <small>
           created on {{p.created.strftime("%b %d, %Y")}}
           {% if user and user.get_id() == p.author.get_id() %}
-            | <a href="/blog/edit/{{p.get_id()}}">edit</a> | <a href="/blog/delete/{{p.get_id()}}">delete</a>
+            | <a href="/blog/{{p.get_id()}}/edit">edit</a> | <a href="/blog/{{p.get_id()}}/delete">delete</a>
           {% endif %}
         </small>
       </h2>
@@ -17,23 +17,21 @@
         <div class="likebox">
             <span class="like_text">{{p.likes}} Likes</span>
             {% if user %}
-              <a class="btn btn-default" href="/blog/like/{{p.get_id()}}">Like</a>
+              <a class="btn btn-default" href="/blog/{{p.get_id()}}/like">Like</a>
             {% endif %}
-            <a class="btn btn-default" href="/blog/comment/{{p.get_id()}}">
-              {% if p.show_comments %}Hide{% else %}Show{% endif %} Comments
+            <a class="btn btn-default commentbutton" href="#">
+              Show Comments
             </a>
 
         </div>
-        {% if user and p.show_comments %}
           <div class="commentbox">
-              <form class="form-inline commentform" method="post" action="/blog/comment/{{p.get_id()}}">
+              <form class="form-inline commentform" method="post" action="/blog/{{p.get_id()}}/comments">
                   <div class="form-group">
                       <textarea name="comment_content" rows="1" cols="60" placeholder="Write your comment here"></textarea>
                   </div>
                   <button type="submit" class="btn btn-default">Add Comment</button>
               </form>
           </div>
-        {% endif %}
 
         {% if p.show_comments %}
           {{rendered_comments|safe}}

@@ -1,6 +1,5 @@
 import webapp2, jinja2
 import os, hashlib, hmac
-from models import User # TODO this import causes an error because of ciruclar imports
 
 template_dir = os.path.join(os.path.dirname(__file__), '../templates')
 jinja_env = jinja2.Environment(
@@ -18,14 +17,11 @@ class BaseHandler(webapp2.RequestHandler):
     is the communication to the client (browser) using jinja2 template engine.
 
     """
-    user = None
 
     def initialize(self, *a, **kw):
-        print "init"
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        uid = self.get_cookie('user_id')
-        # TODO User causes Import Error
-        self.user = uid and User.by_id(int(uid))
+        #uid = self.get_cookie('user_id')
+        #self.user = uid and User.by_id(int(uid))
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -67,3 +63,8 @@ class BaseHandler(webapp2.RequestHandler):
             return val
         else:
             return None
+
+class MainPageHandler(BaseHandler):
+
+    def get(self):
+        self.redirect("/blog")
