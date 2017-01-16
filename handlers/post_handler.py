@@ -1,47 +1,83 @@
 from base_handler import BaseHandler
 import webapp2
-from models import Post, User
+from models import Post, User, Comment
 
-class BasePostHandler(BaseHandler):
+#### post-handlers
 
-    def initialize(self, *a, **kw):
-        webapp2.RequestHandler.initialize(self, *a, **kw)
-        user_id = super(BasePostHandler, self).get_cookie("user_id")
-        print user_id
-        if user_id:
-            BaseHandler.user = User.by_id(int(user_id))
+class PostHandler(BaseHandler):
 
-class BlogHandler(BasePostHandler):
+    """ Responsible for rendering multiple and single posts and comments. """
 
-    def get(self):
-        print "inside bloghandler"
-        self.render_posts()
-
-    def render_posts(self):
+    def render_posts(self, **params):
 
         """
-        1.  get all the posts
-        2.  render each post and save it in a single string
-        3.  pass the single string containing all rendered posts to
-            jinja2 using
+            Creates a string of all rendered posts and uses render to show
+            them on the blog page.
         """
-        posts = Post.get_all()
+
+        if params.has_key('user_posts'):
+            posts = params['user_posts']
+        else:
+            posts = Post.get_all()
 
         rendered_posts = ""
         for post in posts:
-            rendered_posts += post.render()
+            if params.has_key('comment'):
+                print "here"
+                rendered_posts += self.render_post(post,params['comment'])
+            else:
+                rendered_posts += self.render_post(post)
 
         self.render("blog/blog.html", rendered_posts=rendered_posts)
 
-class UserPostHandler(BasePostHandler):
+    def render_post(self, post, comment_to_edit=None):
 
-    """ Show all posts of one user """
+        """ Renders a single post and returns it as a string. """
+
+        """
+        TODO
+        PostCommentsHandler().render_comments() line throws following error:
+        AttributeError: 'NoneType' object has no attribute 'cookies'.
+        Thats why I put render_comments into this PostHandler Class.
+        """
+        #rendered_comments = PostCommentsHandler().render_comments()
+        rendered_comments = self.render_comments(post=post, comment_to_edit=comment_to_edit)
+
+        return self.render_str("blog/singlepost.html", p = post, comments=rendered_comments)
+
+    def render_comments(self, post, comment_to_edit=None):
+
+        """ Renders all comments of a single post. """
+
+        rendered_comments = ""
+        for comment in post.comments:
+            if comment_to_edit and comment.get_id() == comment_to_edit.get_id():
+                rendered_comments += self.render_str("blog/editcomment.html", comment=comment_to_edit)
+            else:
+                rendered_comments += self.render_str("blog/singlecomment.html", p=post, comment=comment)
+        return rendered_comments
+
+class BlogHandler(PostHandler):
+
+    """ Responsible for forwarding the request coming from the "/blog" url """
 
     def get(self):
-        user_posts = Post.get_by_user(int(self.user))
+
+        """ Calls the method render_posts of the PostHandler class. """
+
+        self.render_posts()
+
+class UserPostHandler(PostHandler):
+
+    """ Show all posts of one user. """
+
+    def get(self):
+        user_posts = Post.get_by_user(self.user.get_id())
         self.render_posts(user_posts=user_posts)
 
-class AddPostHandler(BasePostHandler):
+class AddPostHandler(BaseHandler):
+
+    """ Responsible for adding a post to the database. """
 
     def get(self):
         """
@@ -78,36 +114,46 @@ class AddPostHandler(BasePostHandler):
         if any_error:
             self.render("blog/addpost.html", **param_list)
         else:
-            # add post to database
-            p = Post.add_post(post_title, post_content, int(self.user))
+            p = Post.add_post(post_title, post_content, self.user)
             self.redirect('/blog/%s' % str(p.key().id()))
 
-class SinglePostHandler(BasePostHandler):
+class SinglePostHandler(PostHandler):
+
+    """ Responsible for rendering a single post. """
 
     def get(self, post_id):
         """
-        1. get the post by post_id and save it into single_post
-        2. render it using "permalink.html" and single_post as the parameter
+        1. get the post by id
+        2. return a single post by rendering "permalink.html"
         """
-        single_post = Post.by_id(int(post_id)).render()
+        single_post = self.render_post(Post.by_id(int(post_id)))
         self.render("blog/permalink.html", single_post=single_post)
 
+class EditPostHandler(BaseHandler):
 
-class EditPostHandler(BasePostHandler):
+    """ Responsible for updating a post. """
 
-    # get the id from the url "blog/some_id"
     def get(self, post_id):
+        """
+        1. get the post by id
+        2. return the edit form by rendering "editpost.html"
+        """
         post = Post.by_id(int(post_id))
 
-        # if there is not post with that id, return an error
         if not post:
             self.error(404)
             return
 
-        # else render "editpost.html" with the post
+        post.content = post.content.replace('<br>', '\n')
         self.render("/blog/editpost.html", post=post)
 
     def post(self, post_id):
+        """
+        1. get the post by id
+        2. get the form requests and save them in a parameter list, to store
+        the errors
+        3. return form if there is an error, else update the post
+        """
         post = Post.by_id(int(post_id))
         post_title = self.request.get("post_title")
         post_content = self.request.get("post_content")
@@ -125,74 +171,77 @@ class EditPostHandler(BasePostHandler):
         if any_error:
             self.render("blog/editpost.html", **param_list)
         else:
-            # add post to database
             p = Post.update_post(int(post_id), post_title, post_content)
             self.redirect('/blog/%s' % str(p.get_id()))
 
-class LikePostHandler(BasePostHandler):
+class LikePostHandler(BaseHandler):
 
-    # get the id from the url "blog/some_id"
+    """ Responsible for adding a like to a single post. """
+
     def get(self, post_id):
+        """
+        1. call the add_like method with the post and user id as parameters
+        2. redirect to "/blog"
+        """
         Post.add_like(int(post_id), self.user.get_id())
         self.redirect('/blog')
 
-class DeletePostHandler(BasePostHandler):
+class DeletePostHandler(BaseHandler):
 
-    # get the id from the url "blog/some_id"
+    """ Responsible for deleting a single post. """
+
     def get(self, post_id):
+        """
+        1. call the delete_post method with the post id as the parameter
+        2. redirect to "/blog"
+        """
         Post.delete_post(post_id)
         self.redirect('/blog')
 
-# COMMENT handlers
+#### comment-handlers
 
-class PostCommentsHandler(BlogHandler):
+class PostCommentsHandler(BaseHandler):
+
+    """ Responsible for adding a comment to a single post. """
 
     def get(self, post_id):
-        post = Post.by_id(int(post_id))
-        if post.show_comments:
-            post.set_show_comments(False)
-        else:
-            post.set_show_comments(True)
-
-        # returns a string of rendered comments
-        rendered_comments = self.render_comments(post=post)
-
-        self.render_blog(rendered_comments=rendered_comments)
+        """
+        No need to have a get method, because "Show Comments"-Button uses jquery
+        """
+        pass
 
     def post(self, post_id):
+        """
+        1. get the comment content
+        2. add the comment to the post
+        3. redirect to "/blog"
+        """
         comment_content = self.request.get("comment_content")
         Post.add_comment(int(post_id), int(self.user.get_id()), comment_content)
         self.redirect('/blog')
 
-    def render_comments(self, post, comment_to_edit=None):
-        print "inside render comments"
-        if comment_to_edit:
-            comment_to_edit=Comment.by_id(int(comment_id))
+class CommentEditHandler(PostHandler):
 
-        rendered_comments = ""
-        for comment in post.comments:
-            if comment_to_edit and comment.get_id == comment_to_edit.get_id:
-                rendered_comments += self.render_str("blog/editcomment.html", comment=comment_to_edit)
-            else:
-                rendered_comments += self.render_str("blog/singlecomment.html", comment=comment)
-        return rendered_comments
+    """ Responsible for updating a comment of a single post. """
 
-class CommentEditHandler(PostCommentsHandler):
+    def get(self, post_id, comment_id):
+        post = Post.by_id(int(post_id))
+        comment = Comment.by_id(int(comment_id))
+        self.render_posts(comment=comment)
 
-    def get(self, comment_id):
-        self.render_comments(comment_id)
-
-    def post(self, comment_id):
+    def post(self, post_id, comment_id):
         comment_content = self.request.get("comment_content")
         comment = Comment.by_id(int(comment_id))
         comment.set_content(comment_content)
-
         self.redirect('/blog')
 
-class CommentDeleteHandler(BasePostHandler):
+class CommentDeleteHandler(BaseHandler):
 
-    def get(self, comment_id):
-        print "Comment id is: " + str(comment_id)
+    """ Responsible for deleting a comment of a single post. """
+
+    def get(self, post_id, comment_id):
+        comment = Comment.by_id(int(comment_id))
+        comment.delete_comment()
         self.redirect('/blog')
 
     def post(self, post_id):

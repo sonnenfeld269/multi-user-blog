@@ -1,5 +1,6 @@
 import webapp2, jinja2
 import os, hashlib, hmac
+from models import User
 
 template_dir = os.path.join(os.path.dirname(__file__), '../templates')
 jinja_env = jinja2.Environment(
@@ -20,13 +21,15 @@ class BaseHandler(webapp2.RequestHandler):
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        #uid = self.get_cookie('user_id')
-        #self.user = uid and User.by_id(int(uid))
+        uid = self.get_cookie('user_id')
+        print uid
+        self.user = uid and User.by_id(int(uid))
 
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
+        params['user'] = self.user
         t = jinja_env.get_template(template)
         return t.render(params)
 

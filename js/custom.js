@@ -1,5 +1,5 @@
 $(document).ready(function() {
     $(".commentbutton").click(function() {
-        $(".commentbox").toggle();
+        $(this).parent().parent().find(".commentbox").toggle();
     });
 });

@@ -1,9 +1,8 @@
 import hashlib, hmac, random
 from string import letters
 from google.appengine.ext import db
-from handlers.base_handler import BaseHandler
 
-class User(db.Model, BaseHandler):
+class User(db.Model):
     name = db.StringProperty(required = True)
     pw_hash = db.StringProperty(required = True)
     email = db.StringProperty()
@@ -51,10 +50,8 @@ class User(db.Model, BaseHandler):
         salt = h.split(',')[0]
         return h == cls.make_pw_hash(name, password, salt)
 
-    def printSomeStuff():
-        return "some stuff"
 
-class Post(db.Model,BaseHandler):
+class Post(db.Model):
     title = db.StringProperty(required = True)
     content = db.TextProperty(required = True)
     author = db.ReferenceProperty(User, required = True, collection_name="posts")
@@ -82,9 +79,9 @@ class Post(db.Model,BaseHandler):
         return User.by_id(userid).posts
 
     @classmethod
-    def add_post(cls, post_title, post_content, user_id):
+    def add_post(cls, post_title, post_content, user):
 
-        p = Post(title = post_title,content=post_content,author=User.by_id(user_id))
+        p = Post(title = post_title,content=post_content,author=user)
         p.content = p.content.replace('\n', '<br>')
         p.put()
         return p
@@ -104,7 +101,7 @@ class Post(db.Model,BaseHandler):
 
         p = Post.by_id(post_id)
         p.title = post_title
-        p.content = post_content
+        p.content = post_content.replace('\n', '<br>')
         p.put()
         return p
 
@@ -113,26 +110,12 @@ class Post(db.Model,BaseHandler):
         post = cls.by_id(int(post_id))
         post.delete()
 
-    def set_show_comments(self,val):
-        self.show_comments = val
-        self.put()
-
     @classmethod
     def add_comment(cls, post_id, user_id, comment_content):
         p = Post.by_id(post_id)
         u = User.by_id(user_id)
         c = Comment(post=p, user=u, content=comment_content)
         c.put()
-
-
-    """
-    with an own render function it is a lot easier to render the posts
-    on different pages
-    """
-    def render(self):
-        #self._render_text = self.content.replace('\n', '<br>')
-        #return _render_str("blog/singlepost.html", p = self)
-        return self.render_str("blog/singlepost.html", p = self)
 
 class Comment(db.Model):
     post = db.ReferenceProperty(Post, required = True, default=None, collection_name="comments")
