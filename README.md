@@ -18,5 +18,5 @@ The main parts of the app are:
 ## Installation
 
 1. Clone the github project with `git clone https://github.com/sonnenfeld269/multi-user-blog.git`
-2. Go inside the folder with `cd multi-user-blog.git`
+2. Go inside the folder with `cd multi-user-blog`
 3. Start the programm by running `dev_appserver.py app.yaml`
