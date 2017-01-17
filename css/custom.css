@@ -65,16 +65,6 @@ form {
     margin: 0 0 17px 0;
 }
 
-.likebox {
-    font-size: 20px;
-    margin: 20px 0 0 0;
-}
-
-.like_text {
-    font-family: "Indie Flower";
-    color: #286090;
-}
-
 .row {
     padding: 30px 0 0 0;
 }
@@ -104,11 +94,36 @@ form {
     padding: 10px 0 0 0;
 }
 
+.likebox {
+    font-size: 25px;
+    margin: 20px 0 0 0;
+}
+
+.like_text {
+    font-weight: normal;
+    color: chocolate;
+}
+
+.commentbutton {
+  margin-left: 10px;
+}
+
 .likebutton, .commentbutton {
+  padding: 0;
   border: 0px;
 }
 
 .likebutton:hover, .commentbutton:hover {
-  border: 1px solid #dd5b5b;
-  background-color: #fff;
+  border: 0px;
+  background-color: transparent;
+}
+
+.like-symbol {
+  font-size: 22px;
+  color: chocolate;
+}
+
+.comment-symbol {
+  font-size: 25px;
+  color: darkcyan;
 }

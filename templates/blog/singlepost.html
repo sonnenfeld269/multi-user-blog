@@ -15,17 +15,17 @@
     </div>
     <div class="col-xs-12">
         <div class="likebox">
-            <span class="like_text">{{p.likes}} Likes</span> {% if user %}
+            <span class="like_text">{{p.likes}}</span> {% if user %}
             <a class="btn btn-default likebutton" href="/blog/{{p.get_id()}}/like">
-                <i class="fa fa-heart-o" aria-hidden="true"></i>
+                <i class="fa fa-heart-o like-symbol" aria-hidden="true"></i>
             </a>
             {% endif %}
             <a class="btn btn-default commentbutton" href="#">
-                <i class="fa fa-comments-o" aria-hidden="true"></i>
+                <i class="fa fa-comments-o comment-symbol" aria-hidden="true"></i>
             </a>
 
         </div>
-        <div class="commentbox">
+        <div class="commentbox" style="display: none;">
             {{comments|safe}}
             <form class="form-inline commentform" method="post" action="/blog/{{p.get_id()}}/comments">
                 <div class="form-group">
