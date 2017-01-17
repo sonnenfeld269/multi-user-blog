@@ -14,6 +14,8 @@
 
 ### Database Layer
 
+[//]: # (TODO: Use plant uml here like in tournament results)
+
 1 : * relation between User : Post
 1 : * relation between Post : Comment
 1 : * relation between User : Comment
@@ -61,7 +63,7 @@ Here you can see the user actions and the handlers that will be called on that a
 
 |URL, HANDLER           |POST/GET | ACTION |
 |-----------------------|---------|--------|
-|('/', MainPageHandler)|GET|show all blog posts|
+|('/', BlogHandler)|GET|show all blog posts|
 |('/register', RegisterHandler)|GET/POST|show register form or submit|
 |('/login', LoginHandler)|GET/POST|show login form or submit|
 |('/logout', LogoutHandler)|GET|logout the user|
@@ -85,40 +87,89 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
 1. Implementing **show all blog posts** action
 
     |('/blog', BlogHandler)|GET|show all blog posts|
-    |-----------------|---------|--------|
+    |----------------------|---|-------------------|
 
-    As we can see, this should be implemented as GET, because the user just requests
-    the fetched data from the database. There is no data to changed on the database.
-    When the user points the the url `/blog`, the `get()` method of BlogHander
-    will be called. Below you can see the class with some pseude-code
+    As we can see, this should be implemented as GET, because the user just requests the fetched data from the database. There is no data to changed on the database. When the user points the the url `/blog`, the `get()` method of BlogHander will be called. Below you can see the class with some pseude-code
 
     ```
-    class BlogHandler(BaseHandler):
+    class BlogHandler(PostHandler):
+
+        """ Responsible for forwarding the request coming from the "/blog" url """
 
         def get(self):
+
+            """ Calls the method render_posts of the PostHandler class. """
+
             self.render_posts()
+    ```
 
-        def render_posts(self, **kw):
+    The BlogHandler Class calls the `render_posts()` method of `PostHandler`.
+
+    ```
+    class PostHandler(BaseHandler):
+
+        """ Responsible for rendering multiple and single posts and comments. """
+
+        def render_posts(self, **params):
 
             """
-            1.  get all the posts
-            2.  render each post and save it in a single string
-            3.  pass the single string containing all rendered posts to
-                jinja2 using
+                Creates a string of all rendered posts and uses render to show
+                them on the blog page.
             """
-            posts = Post.get_all()
+
+            if params.has_key('user_posts'):
+                posts = params['user_posts']
+            else:
+                posts = Post.get_all()
 
             rendered_posts = ""
             for post in posts:
-                rendered_posts += post.render()
+                if params.has_key('comment'):
+                    print "here"
+                    rendered_posts += self.render_post(post,params['comment'])
+                else:
+                    rendered_posts += self.render_post(post)
 
-            self.render("blog/blog.html", rendered_posts=rendered_posts, **kw)
-    ```
+            self.render("blog/blog.html", rendered_posts=rendered_posts)
+
+        def render_post(self, post, comment_to_edit=None):
+
+            """ Renders a single post as a string. """
+
+            """
+            TODO
+            To keep the code more object-oriented I wanted to have the render_comments() method inside the PostCommentsHandler() class.
+            But then I get following error:
+            AttributeError: 'NoneType' object has no attribute 'cookies'.
+            Thats why I put render_comments into this PostHandler Class.
+            """
+            #rendered_comments = PostCommentsHandler().render_comments()
+            rendered_comments = self.render_comments(post=post, comment_to_edit=comment_to_edit)
+
+            return self.render_str("blog/singlepost.html", p = post, comments=rendered_comments)
+
+        def render_comments(self, post, comment_to_edit=None):
+
+            """ Renders all comments of a single post. """
+
+            rendered_comments = ""
+            for comment in post.comments:
+                if comment_to_edit and comment.get_id() == comment_to_edit.get_id():
+                    rendered_comments += self.render_str("blog/editcomment.html", comment=comment_to_edit)
+                else:
+                    rendered_comments += self.render_str("blog/singlecomment.html", p=post, comment=comment)
+            return rendered_comments
+      ```
+
+      We can see that `render_posts()` returns a string, which is build by
+      calling other render-methods like `render_post()` and `render_comments()`
+
+
 
 2. Implementing **show add post form and submit** action
 
     |('/blog/addpost', AddPostHandler)|GET/POST|show add post form and submit|
-    |-----------------|---------|--------|
+    |---------------------------------|--------|-----------------------------|
 
     Here we have to use cases. If the user clicks on **add post**, the `get()`
     method should be called, where a form is returned to the user. And if
@@ -127,6 +178,8 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
 
     ```
     class AddPostHandler(BaseHandler):
+
+        """ Responsible for adding a post to the database. """
 
         def get(self):
             """
@@ -163,7 +216,7 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
             if any_error:
                 self.render("blog/addpost.html", **param_list)
             else:
-                p = Post.add_post(post_title, post_content, int(self.user))
+                p = Post.add_post(post_title, post_content, self.user)
                 self.redirect('/blog/%s' % str(p.key().id()))
     ```
 
@@ -172,19 +225,20 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
     user action table
 
     |('/blog/([0-9]+)', SinglePostHandler)|GET|show single post|
-    |-----------------|---------|--------|
+    |-------------------------------------|---|----------------|
 
-    And the Implemention of SinglePostHandler is quite simple. It should render
-    the given single_post:
+    And the Implemention of SinglePostHandler is quite simple. It should render the given single_post:
 
     ```
-    class SinglePostHandler(BaseHandler):
+    class SinglePostHandler(PostHandler):
+
+        """ Responsible for rendering a single post. """
 
         def get(self, post_id):
             """
-            1. get the post by post_id and save it into single_post
-            2. render it using "permalink.html" and single_post as the parameter
+            1. get the post by id
+            2. return a single post by rendering "permalink.html"
             """
-            single_post = Post.by_id(int(post_id)).render()
+            single_post = self.render_post(Post.by_id(int(post_id)))
             self.render("blog/permalink.html", single_post=single_post)
     ```

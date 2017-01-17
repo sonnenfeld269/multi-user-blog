@@ -32,11 +32,12 @@ class PostHandler(BaseHandler):
 
     def render_post(self, post, comment_to_edit=None):
 
-        """ Renders a single post and returns it as a string. """
+        """ Renders a single post as a string. """
 
         """
         TODO
-        PostCommentsHandler().render_comments() line throws following error:
+        To keep the code more object-oriented I wanted to have the render_comments() method inside the PostCommentsHandler() class.
+        But then I get following error:
         AttributeError: 'NoneType' object has no attribute 'cookies'.
         Thats why I put render_comments into this PostHandler Class.
         """
