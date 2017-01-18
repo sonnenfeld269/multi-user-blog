@@ -7,20 +7,21 @@
         - base_handler.py - containing webapp2 module
         - post_handler.py - responsible for post-related requests
         - user_handler.py - responsible for user-related requests
-    - main.py - containing all the url-mapping to handlers
-    - models.py - containing our User and Post class (db.Model)
+    - templates/
+        - base.html       - our base.html which serves as a parent view
+        - blog/           - subdir containing all blog-related html files
+        - auth/           - subdir containing all blog-related html files
+    - main.py             - containing all the url-mapping to handlers
+    - models.py           - containing our User and Post class (db.Model)
 
 ## Implementation
 
 ### Database Layer
 
-[//]: # (TODO: Use plant uml here like in tournament results)
+![model](model.png)
 
-1 : * relation between User : Post
-1 : * relation between Post : Comment
-1 : * relation between User : Comment
-
-Which results in following classes
+For creation of our models and relationships we use the [Python DB Client Library for Cloud Datastore](https://cloud.google.com/appengine/docs/python/datastore/api-overview)
+Following that documentation we get following classes
 
 ```
 class Post(db.Model,BaseHandler):
@@ -50,6 +51,7 @@ class Comment(db.Model):
 
     ## getter-setter-methods
 ```
+
 
 ### Service Layer
 
@@ -272,7 +274,7 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
 
 ##### Hashing
 
-1.  What is hash?
+1.  What is hashing?
 
     h(x) = y
 
@@ -291,34 +293,33 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
     A hacker retrieves the salt and password hash. Then he can recreate the
     original password, right? Why use salt then?
 
-    Because the salt is created unique for each user. So it is almost impossible
+    Because the salt is unique for each user. So it is almost impossible
     to find the original text inside rainbow-tables, because of this unique salt.
 
-    -- example one - table without salt
+- example one - table without salt
 
-        |user  |password hash                                    |
-        |------|-------------------------------------------------|
-        |"dave"|"5abghd" (e.g original password "my_password123")|
+    |user  |password hash                                    |
+    |------|-------------------------------------------------|
+    |"dave"|"5abghd" (e.g original password "my_password123")|
 
-        -> look for "5abghd" inside rainbow table and get password
+    look for "5abghd" inside rainbow table and get password
 
+- example two - table with salt  
 
-    -- example two - table with salt  
+    |user  |password hash                                                 |
+    |------|--------------------------------------------------------------|
+    |"dave"|"7dfjok","randomsalt" (e.g original password "my_password123")|
 
-        |user  |password hash                                                 |
-        |------|--------------------------------------------------------------|
-        |"dave"|"7dfjok","randomsalt" (e.g original password "my_password123")|
-
-        ->  look for "7dfjok" inside rainbow table and you will not be able to find
-            the password because every user has his unique salt, so every hash is
-            completely different and makes re-creation almost impossible
+    look for "7dfjok" inside rainbow table and you will not be able to find
+    the password because every user has his unique salt, so every hash is
+    completely different and makes re-creation almost impossible
 
 ##### Cookies
 
 1.  Why cookies?
 
-    cookies hand hold little piece of data. that way we dont always have to look up in the database if the user is logged in, we can store
-    inside the browser and retrieve the information from the browser.
+    Cokies hand hold little piece of data. That way we don't always have to look up in the database if the user is logged in.
+    We can store the data inside the browser and retrieve the information from the browser.
 
 2.  What is the difference between "Cookie" and "Set-Cookie" in the Response or Request Header of the Browser?
 
@@ -326,3 +327,51 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
 ##### Implementation
 
   to be written
+
+### View Layer
+
+#### Template Engine
+
+To make our data available to the users, we use a template engine called jinja2.
+That way it is a lot easier to map our data to the html files.
+
+To see some documentation and examples go to [jinja2 documentation](http://jinja.pocoo.org/docs/2.9/)
+
+In our case we just have a base.html file, which contains the header and the navigation.
+The dynamic generated content will be places inside the content block:
+
+```
+<!DOCTYPE html>
+<html>
+
+<head>
+    ...
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <h1><a class="title" href="/blog">SonnenBlog!</a></h1>
+            </div>
+            <div class="col-lg-7">
+                <nav>
+                    ...
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+          <!-- HERE IS THE CONTENT BLOCK -->
+          {% block content %}
+          {% endblock %}
+        </div>
+    </div>
+</body>
+
+</html>
+```
+
+## References
+
+* http://www.agilemodeling.com/style/classDiagram.htm - UML examples
+* http://jinja.pocoo.org/docs/2.9/ - Jinja2 Template Engine

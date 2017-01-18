@@ -2,12 +2,12 @@
 
 ## Introduction
 
-A backend webapplication with a secure authentication system and where users can post, delete and update their blog posts.
-The main parts of the app are:
-  * **main.py**: A main class to initialize the app and communicate between browser and app.
-  * **user.py**: A class specifing a user
-  * **post.py**: A class specifing a blog post
-  * **templates**: Inside you will find html template, which will be rendered using the jinja2 template engine
+This is a multi user blog where users can sign in and post blog posts as well as 'Like' and 'Comment' on other posts made on the blog. It is hosted on Google App Engine and includes an authentication system for users to be able to register and sign in and then create blog posts!
+
+## Documentation
+
+To read more about the concept and details of the implementation visit
+  [Concept.md](/doc/CONCEPT.md "Documentation").
 
 ## Requirements
 
