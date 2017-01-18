@@ -36,7 +36,7 @@
 
 ### Database Layer
 
-![model](model.png)
+![model](db_model.png)
 
 For creation of our models and relationships we use the [Python DB Client Library for Cloud Datastore](https://cloud.google.com/appengine/docs/python/datastore/api-overview)
 Following that documentation we get following classes
@@ -75,7 +75,7 @@ class Comment(db.Model):
 
 BaseHandler is our parent module, which is responsible for handling the responses to the browser using jinja2.
 
-![handler inheritance](webapp2.png)
+![handler inheritance](handler_model.png)
 
 #### Get and Post
 
