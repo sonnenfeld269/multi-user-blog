@@ -38,28 +38,57 @@ class BaseHandler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
     def login(self, user):
+        """Creates a cookie for the browser.
+
+        Args:
+            user: the user who wants to log in
+        """
         self.set_cookie('user_id', str(user.key().id()))
 
     def logout(self):
+        """Removes the cookie by adding an empty 'Set-Cookie' to the headers.
+        """
         self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
 
     def set_cookie(self, name, value):
+        """Creates a cookie, which will be added to the request header of the
+        browser.
+
+        Args:
+            name: the name of the cookie
+            value: the value of the cookie
+        """
         secure_value = self.make_secure_value(SECRET, value)
-        # send a response to the browser(client) telling him to add a header
-        # called 'set cookie'.
         self.response.headers.add_header(
             'Set-Cookie',
             '%s=%s; Path=/' % (name, secure_value))
 
     def get_cookie(self, name):
-        # request the cookie from the browser response header
+        """Get the cookie from the request by the browser and validate it.
+
+        Returns:
+            A string containing the cookie information, which was returned from
+            the browser.
+        """
         our_cookie = self.request.cookies.get(name)
         return our_cookie and self.check_secure_val(our_cookie)
 
     def make_secure_value(self, secret_key, value):
+        """Creates a secure value.
+
+        Returns:
+            A string containing the original value followed by a hashed version
+            of that value.
+        """
         return value + "|" + hmac.new(secret_key, value).hexdigest()
 
     def check_secure_val(self, h):
+        """Creates a secure value and compares it to the original.
+
+        Returns:
+            val: the original value
+            None: nothing, if given hash is not equal to the secure value.
+        """
         val = h.split('|')[0]
 
         if h == self.make_secure_value(SECRET, val):

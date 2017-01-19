@@ -36,7 +36,7 @@
 
 ### Database Layer
 
-![model](model.png)
+![model](db_model.png)
 
 For creation of our models and relationships we use the [Python DB Client Library for Cloud Datastore](https://cloud.google.com/appengine/docs/python/datastore/api-overview)
 Following that documentation we get following classes
@@ -75,7 +75,7 @@ class Comment(db.Model):
 
 BaseHandler is our parent module, which is responsible for handling the responses to the browser using jinja2.
 
-![handler inheritance](webapp2.png)
+![handler inheritance](handler_model.png)
 
 #### Get and Post
 
@@ -341,10 +341,80 @@ The **BlogHandler**, **AddPostHandler** and **SinglePostHandler**.
 
 2.  What is the difference between "Cookie" and "Set-Cookie" in the Response or Request Header of the Browser?
 
+    - *Set-Cookie*
+      Is what the server sends to the browser in form of an HTTP Response. So the browser knows what to store.
+      You can send multiple *Set-Cookie* (up to max 20) to the browser.
+
+    - *Cookie*
+      Is what the browser sends to the server in form of an HTTP Request. All the Cookies are stored inside the
+      HTTP Request, seperated by a semicolon.
+
 
 ##### Implementation
 
-  to be written
+Here are the relevant documented methods for our authentication system with cookies.
+You will find these inside the base_handler.py module.
+
+```
+def login(self, user):
+    """Creates a cookie for the browser.
+
+    Args:
+        user: the user who wants to log in
+    """
+    self.set_cookie('user_id', str(user.key().id()))
+
+def logout(self):
+    """Removes the cookie by adding an empty 'Set-Cookie' to the headers.
+    """
+    self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+
+def set_cookie(self, name, value):
+    """Creates a cookie, which will be added to the request header of the
+    browser.
+
+    Args:
+        name: the name of the cookie
+        value: the value of the cookie
+    """
+    secure_value = self.make_secure_value(SECRET, value)
+    self.response.headers.add_header(
+        'Set-Cookie',
+        '%s=%s; Path=/' % (name, secure_value))
+
+def get_cookie(self, name):
+    """Get the cookie from the request by the browser and validate it.
+
+    Returns:
+        A string containing the cookie information, which was returned from
+        the browser.
+    """
+    our_cookie = self.request.cookies.get(name)
+    return our_cookie and self.check_secure_val(our_cookie)
+
+def make_secure_value(self, secret_key, value):
+    """Creates a secure value.
+
+    Returns:
+        A string containing the original value followed by a hashed version
+        of that value.
+    """
+    return value + "|" + hmac.new(secret_key, value).hexdigest()
+
+def check_secure_val(self, h):
+    """Creates a secure value and compares it to the original.
+
+    Returns:
+        val: the original value
+        None: nothing, if given hash is not equal to the secure value.
+    """
+    val = h.split('|')[0]
+
+    if h == self.make_secure_value(SECRET, val):
+        return val
+    else:
+        return None
+```
 
 ### View Layer
 

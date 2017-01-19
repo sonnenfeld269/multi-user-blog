@@ -1,5 +1,0 @@
-@startuml
-User "1" -> "*" Post : write
-User "1" -> "*" Post
-(User, Post) .. Comment
-@enduml
