@@ -23,12 +23,14 @@ class PostHandler(BaseHandler):
         for post in posts:
             if params.has_key('comment'):
                 rendered_posts += self.render_post(post,params['comment'])
+            elif params.has_key('show_comments') and params['post_id_comments'] == str(post.get_id()):
+                rendered_posts += self.render_post(post,None,params['show_comments'])
             else:
                 rendered_posts += self.render_post(post)
 
         self.render("blog/blog.html", rendered_posts=rendered_posts)
 
-    def render_post(self, post, comment_to_edit=None):
+    def render_post(self, post, comment_to_edit=None, show_comments=None):
 
         """ Renders a single post as a string. """
 
@@ -43,7 +45,7 @@ class PostHandler(BaseHandler):
         #rendered_comments = PostCommentsHandler().render_comments()
         rendered_comments = self.render_comments(post=post, comment_to_edit=comment_to_edit)
 
-        return self.render_str("blog/singlepost.html", p = post, comments=rendered_comments)
+        return self.render_str("blog/singlepost.html", p = post, comments=rendered_comments, show_comments = show_comments)
 
     def render_comments(self, post, comment_to_edit=None):
 
@@ -212,17 +214,12 @@ class DeletePostHandler(BaseHandler):
 
 #### comment-handlers
 
-class PostCommentsHandler(BaseHandler):
+class PostCommentsHandler(PostHandler):
 
-    """ Responsible for showing and adding a comment to a single post. """
+    """ Responsible for adding a comment to a single post. """
 
     def get(self, post_id):
-        post = Post.by_id(int(post_id))
-        if post.show_comments:
-            post.set_show_comments(False)
-        else:
-            post.set_show_comments(True)
-        self.redirect('/blog')
+        pass
 
     def post(self, post_id):
         """
@@ -232,7 +229,25 @@ class PostCommentsHandler(BaseHandler):
         """
         comment_content = self.request.get("comment_content")
         Post.add_comment(int(post_id), int(self.user.get_id()), comment_content)
-        self.redirect('/blog')
+        self.redirect("/blog/" + post_id + "/comments")
+
+show_comments = False
+
+class ShowCommentsHandler(PostHandler):
+
+    def get(self, post_id):
+        global show_comments
+        show_comments=True
+        self.render_posts(show_comments=show_comments,post_id_comments = post_id)
+
+
+class HideCommentsHandler(PostHandler):
+
+    def get(self, post_id):
+        global show_comments
+        show_comments=False
+        self.render_posts(show_comments=show_comments,post_id_comments = post_id)
+
 
 class CommentEditHandler(PostHandler):
 

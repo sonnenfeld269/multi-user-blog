@@ -59,7 +59,6 @@ class Post(db.Model):
     liked_by_users = db.StringListProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
     last_modified = db.DateTimeProperty(auto_now = True)
-    show_comments = db.BooleanProperty(default=False)
 
 
     @classmethod
@@ -109,10 +108,6 @@ class Post(db.Model):
     def delete_post(cls, post_id):
         post = cls.by_id(int(post_id))
         post.delete()
-
-    def set_show_comments(self,val):
-        self.show_comments = val
-        self.put()
 
     @classmethod
     def add_comment(cls, post_id, user_id, comment_content):

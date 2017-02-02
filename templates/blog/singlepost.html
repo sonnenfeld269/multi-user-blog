@@ -19,16 +19,21 @@
                 <i class="fa fa-heart-o like-symbol" aria-hidden="true"></i>
             </a>
             {% endif %}
-            <a class="btn btn-default commentbutton" href="/blog/{{p.get_id()}}/comments">
+            <a class="btn btn-default commentbutton"
+                {% if show_comments %}
+                href="/blog/{{p.get_id()}}/comments/hide"
+                {% else %}
+                href="/blog/{{p.get_id()}}/comments"
+                {% endif %}>
                 <i class="fa fa-comments-o comment-symbol" aria-hidden="true"></i>
             </a>
 
         </div>
-        {% if p.show_comments %}
+        {% if show_comments %}
         <div class="commentbox">
             {{comments|safe}}
             {% if user %}
-            <form class="form-inline commentform" method="post" action="/blog/{{p.get_id()}}/comments">
+            <form class="form-inline commentform" method="post" action="/blog/{{p.get_id()}}/comments/new">
                 <div class="form-group">
                     <textarea name="comment_content" rows="1" cols="60" placeholder="add a comment"></textarea>
                 </div>
