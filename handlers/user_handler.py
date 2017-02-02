@@ -98,7 +98,7 @@ class LogoutHandler(BaseHandler):
 
     def get(self):
         self.logout()
-        self.redirect('/blog')
+        self.redirect('/login')
 
 class WelcomeHandler(BaseHandler):
     """Show a welcome page when user registered of logged in successfully
@@ -107,4 +107,4 @@ class WelcomeHandler(BaseHandler):
         if self.user:
             self.render("auth/welcome.html")
         else:
-            self.redirect("/register")
+            self.redirect("/login")
