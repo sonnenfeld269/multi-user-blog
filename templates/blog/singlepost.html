@@ -20,12 +20,13 @@
                 <i class="fa fa-heart-o like-symbol" aria-hidden="true"></i>
             </a>
             {% endif %}
-            <a class="btn btn-default commentbutton" href="#">
+            <a class="btn btn-default commentbutton" href="/blog/{{p.get_id()}}/comments">
                 <i class="fa fa-comments-o comment-symbol" aria-hidden="true"></i>
             </a>
 
         </div>
-        <div class="commentbox" style="display: none;">
+        {% if p.show_comments %}
+        <div class="commentbox">
             {{comments|safe}}
             {% if user %}
             <form class="form-inline commentform" method="post" action="/blog/{{p.get_id()}}/comments">
@@ -36,5 +37,6 @@
             </form>
             {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>

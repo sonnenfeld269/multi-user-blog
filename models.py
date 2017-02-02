@@ -110,6 +110,10 @@ class Post(db.Model):
         post = cls.by_id(int(post_id))
         post.delete()
 
+    def set_show_comments(self,val):
+        self.show_comments = val
+        self.put()
+
     @classmethod
     def add_comment(cls, post_id, user_id, comment_content):
         p = Post.by_id(post_id)

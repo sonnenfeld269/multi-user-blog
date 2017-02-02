@@ -22,7 +22,6 @@ class PostHandler(BaseHandler):
         rendered_posts = ""
         for post in posts:
             if params.has_key('comment'):
-                print "here"
                 rendered_posts += self.render_post(post,params['comment'])
             else:
                 rendered_posts += self.render_post(post)
@@ -215,13 +214,15 @@ class DeletePostHandler(BaseHandler):
 
 class PostCommentsHandler(BaseHandler):
 
-    """ Responsible for adding a comment to a single post. """
+    """ Responsible for showing and adding a comment to a single post. """
 
     def get(self, post_id):
-        """
-        No need to have a get method, because "Show Comments"-Button uses jquery
-        """
-        pass
+        post = Post.by_id(int(post_id))
+        if post.show_comments:
+            post.set_show_comments(False)
+        else:
+            post.set_show_comments(True)
+        self.redirect('/blog')
 
     def post(self, post_id):
         """
