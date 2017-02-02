@@ -256,13 +256,10 @@ class CommentDeleteHandler(BaseHandler):
 
     """ Responsible for deleting a comment of a single post. """
 
-    def get(self, post_id, comment_id):
+    def post(self, post_id, comment_id):
         comment = Comment.by_id(int(comment_id))
         if self.user and self.user.get_id() == comment.user.get_id():
             comment.delete_comment()
             self.redirect('/blog')
         else:
             self.render("/base.html", error="Not allowed to delete comment.")
-
-    def post(self, post_id):
-        pass
