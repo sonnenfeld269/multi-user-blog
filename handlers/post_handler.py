@@ -137,16 +137,21 @@ class EditPostHandler(BaseHandler):
     def get(self, post_id):
         """
         1. get the post by id
-        2. return the edit form by rendering "editpost.html"
+        2. check if post author is equal to user
+            3. return the edit form by rendering "editpost.html"
+        4. else redirect to base.html with error message
         """
         post = Post.by_id(int(post_id))
 
-        if not post:
+        if not post.author:
             self.error(404)
             return
 
-        post.content = post.content.replace('<br>', '\n')
-        self.render("/blog/editpost.html", post=post)
+        if self.user and post.author.get_id() == self.user.get_id():
+            post.content = post.content.replace('<br>', '\n')
+            self.render("/blog/editpost.html", post=post)
+        else:
+            self.render("/base.html", error="Not allowed to edit post.")
 
     def post(self, post_id):
         """
@@ -193,11 +198,18 @@ class DeletePostHandler(BaseHandler):
 
     def get(self, post_id):
         """
-        1. call the delete_post method with the post id as the parameter
-        2. redirect to "/blog"
+        1. check if post author is equal to user
+            2. call the delete_post method with the post id as the parameter
+            3. redirect to "/blog"
+        4. else redirect to base.html with error message
         """
-        Post.delete_post(post_id)
-        self.redirect('/blog')
+        post = Post.by_id(int(post_id))
+        if self.user and post.author.get_id() == self.user.get_id():
+            Post.delete_post(post_id)
+            self.redirect('/blog')
+        else:
+            self.render("/base.html", error="Not allowed to delete post.")
+
 
 #### comment-handlers
 
@@ -228,7 +240,10 @@ class CommentEditHandler(PostHandler):
     def get(self, post_id, comment_id):
         post = Post.by_id(int(post_id))
         comment = Comment.by_id(int(comment_id))
-        self.render_posts(comment=comment)
+        if self.user and self.user.get_id() == comment.user.get_id():
+            self.render_posts(comment=comment)
+        else:
+            self.render("/base.html", error="Not allowed to edit comment.")
 
     def post(self, post_id, comment_id):
         comment_content = self.request.get("comment_content")
@@ -242,8 +257,11 @@ class CommentDeleteHandler(BaseHandler):
 
     def get(self, post_id, comment_id):
         comment = Comment.by_id(int(comment_id))
-        comment.delete_comment()
-        self.redirect('/blog')
+        if self.user and self.user.get_id() == comment.user.get_id():
+            comment.delete_comment()
+            self.redirect('/blog')
+        else:
+            self.render("/base.html", error="Not allowed to delete comment.")
 
     def post(self, post_id):
         pass
