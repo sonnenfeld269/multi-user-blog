@@ -51,7 +51,7 @@ class RegisterHandler(BaseHandler):
             else:
                 u = User.register(user_name, user_password, user_email)
                 self.login(u)
-                self.redirect("/blog")
+                self.redirect("/welcome")
         else:
             self.render("auth/register.html", **param_list)
 
@@ -92,10 +92,19 @@ class LoginHandler(BaseHandler):
                 self.render("auth/login.html", **param_list)
             else:
                 self.login(u)
-                self.redirect("/blog")
+                self.redirect("/welcome")
 
 class LogoutHandler(BaseHandler):
 
     def get(self):
         self.logout()
         self.redirect('/blog')
+
+class WelcomeHandler(BaseHandler):
+    """Show a welcome page when user registered of logged in successfully
+    """
+    def get(self):
+        if self.user:
+            self.render("auth/welcome.html")
+        else:
+            self.redirect("/register")

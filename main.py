@@ -4,7 +4,7 @@ import webapp2
 from handlers.post_handler import BlogHandler, SinglePostHandler, AddPostHandler
 from handlers.post_handler import EditPostHandler, DeletePostHandler, UserPostHandler, LikePostHandler
 from handlers.post_handler import PostCommentsHandler, CommentEditHandler, CommentDeleteHandler
-from handlers.user_handler import RegisterHandler, LoginHandler, LogoutHandler
+from handlers.user_handler import RegisterHandler, LoginHandler, LogoutHandler, WelcomeHandler
 from google.appengine.ext import db
 
 """
@@ -17,6 +17,7 @@ app = webapp2.WSGIApplication([
     ('/register', RegisterHandler),
     ('/login', LoginHandler),
     ('/logout', LogoutHandler),
+    ('/welcome', WelcomeHandler),
     ('/blog', BlogHandler),
     ('/blog/addpost', AddPostHandler),
     ('/blog/myposts', UserPostHandler),

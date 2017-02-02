@@ -10,9 +10,8 @@ class PostHandler(BaseHandler):
 
     def render_posts(self, **params):
 
-        """
-            Creates a string of all rendered posts and uses render to show
-            them on the blog page.
+        """Creates a string of all rendered posts and uses render to show
+        them on the blog page.
         """
 
         if params.has_key('user_posts'):
@@ -36,7 +35,8 @@ class PostHandler(BaseHandler):
 
         """
         TODO
-        To keep the code more object-oriented I wanted to have the render_comments() method inside the PostCommentsHandler() class.
+        To keep the code more object-oriented I wanted to have the
+        render_comments() method inside the PostCommentsHandler() class.
         But then I get following error:
         AttributeError: 'NoneType' object has no attribute 'cookies'.
         Thats why I put render_comments into this PostHandler Class.

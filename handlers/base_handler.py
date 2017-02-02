@@ -22,7 +22,6 @@ class BaseHandler(webapp2.RequestHandler):
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.get_cookie('user_id')
-        print uid
         self.user = uid and User.by_id(int(uid))
 
     def write(self, *a, **kw):
@@ -34,7 +33,6 @@ class BaseHandler(webapp2.RequestHandler):
         return t.render(params)
 
     def render(self, template, **kw):
-        kw['user'] = self.user
         self.write(self.render_str(template, **kw))
 
     def login(self, user):
