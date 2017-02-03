@@ -3,7 +3,7 @@
         <div class="form-group">
             <textarea name="comment_content" rows="5" cols="60" placeholder="Write your comment here">{{comment.content}}</textarea>
         </div>
-        <a class="btn btn-default" href="/blog" role="button">Cancel</a>
+        <a class="btn btn-default" href="/blog/{{comment.post.get_id()}}/comments" role="button">Cancel</a>
         <button type="submit" class="btn btn-default">Save</button>
     </form>
 </div>

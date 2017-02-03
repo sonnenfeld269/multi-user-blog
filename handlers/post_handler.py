@@ -21,18 +21,21 @@ class PostHandler(BaseHandler):
 
         rendered_posts = ""
         for post in posts:
-            if params.has_key('comment'):
-                rendered_posts += self.render_post(post,params['comment'])
-            elif params.has_key('show_comments') and params['post_id_comments'] == str(post.get_id()):
-                rendered_posts += self.render_post(post,None,params['show_comments'])
-            else:
-                rendered_posts += self.render_post(post)
+            rendered_posts += self.render_post(post, **params)
 
         self.render("blog/blog.html", rendered_posts=rendered_posts)
 
-    def render_post(self, post, comment_to_edit=None, show_comments=None):
+    def render_post(self, post, **params):
+        """Renders a single post as a string. Check for a comment to edit or
+        if comments should be shown by looking into the parameters.
 
-        """ Renders a single post as a string. """
+        Args:
+            post: a single post
+            **params: multiple parameters which are passed to the post
+
+        Returns:
+            string: a string containing the html of the single post
+        """
 
         """
         TODO
@@ -43,14 +46,25 @@ class PostHandler(BaseHandler):
         Thats why I put render_comments into this PostHandler Class.
         """
         #rendered_comments = PostCommentsHandler().render_comments()
-        rendered_comments = self.render_comments(post=post, comment_to_edit=comment_to_edit)
 
-        return self.render_str("blog/singlepost.html", p = post, comments=rendered_comments, show_comments = show_comments)
+        if params.has_key('comment_to_edit'):
+            rendered_comments = self.render_comments(post=post,comment_to_edit=params['comment_to_edit'])
+        else:
+            rendered_comments = self.render_comments(post=post,comment_to_edit=None)
+
+        if params.has_key('show_comments'):
+            show_comments=params['show_comments']
+        else:
+            show_comments=False
+
+        return self.render_str("blog/singlepost.html",
+                                p = post,
+                                comments=rendered_comments,
+                                show_comments=show_comments)
 
     def render_comments(self, post, comment_to_edit=None):
 
         """ Renders all comments of a single post. """
-
         rendered_comments = ""
         for comment in post.comments:
             if comment_to_edit and comment.get_id() == comment_to_edit.get_id():
@@ -236,18 +250,12 @@ show_comments = False
 class ShowCommentsHandler(PostHandler):
 
     def get(self, post_id):
-        global show_comments
-        show_comments=True
-        self.render_posts(show_comments=show_comments,post_id_comments = post_id)
-
+        self.render_posts(show_comments=True,post_id_comments = post_id)
 
 class HideCommentsHandler(PostHandler):
 
     def get(self, post_id):
-        global show_comments
-        show_comments=False
-        self.render_posts(show_comments=show_comments,post_id_comments = post_id)
-
+        self.render_posts(show_comments=False,post_id_comments = post_id)
 
 class CommentEditHandler(PostHandler):
 
@@ -257,7 +265,7 @@ class CommentEditHandler(PostHandler):
         post = Post.by_id(int(post_id))
         comment = Comment.by_id(int(comment_id))
         if self.user and self.user.get_id() == comment.user.get_id():
-            self.render_posts(comment=comment)
+            self.render_posts(comment_to_edit=comment, show_comments=True, post_id_comments = post_id)
         else:
             self.render("/base.html", error="Not allowed to edit comment.")
 
@@ -265,7 +273,7 @@ class CommentEditHandler(PostHandler):
         comment_content = self.request.get("comment_content")
         comment = Comment.by_id(int(comment_id))
         comment.set_content(comment_content)
-        self.redirect('/blog')
+        self.redirect("/blog/" + post_id + "/comments")
 
 class CommentDeleteHandler(BaseHandler):
 
@@ -275,6 +283,6 @@ class CommentDeleteHandler(BaseHandler):
         comment = Comment.by_id(int(comment_id))
         if self.user and self.user.get_id() == comment.user.get_id():
             comment.delete_comment()
-            self.redirect('/blog')
+            self.redirect("/blog/" + post_id + "/comments")
         else:
             self.render("/base.html", error="Not allowed to delete comment.")
