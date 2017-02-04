@@ -166,9 +166,16 @@ class EditPostHandler(BaseHandler):
         """
         post = Post.by_id(int(post_id))
 
+        """
+        TODO - Question:
+        Is it ok if I delete this part below, because the post author will be validated
+        below already on line 178?
+        """
+        """
         if not post.author:
             self.error(404)
             return
+        """
 
         if self.user and post.author.get_id() == self.user.get_id():
             post.content = post.content.replace('<br>', '\n')
