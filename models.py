@@ -1,10 +1,13 @@
-import hashlib, hmac, random
+import hashlib
+import hmac
+import random
 from string import letters
 from google.appengine.ext import db
 
+
 class User(db.Model):
-    name = db.StringProperty(required = True)
-    pw_hash = db.StringProperty(required = True)
+    name = db.StringProperty(required=True)
+    pw_hash = db.StringProperty(required=True)
     email = db.StringProperty()
 
     @classmethod
@@ -20,11 +23,11 @@ class User(db.Model):
         return u
 
     @classmethod
-    def register(cls, name, pw, email = None):
+    def register(cls, name, pw, email=None):
         pw_hash = cls.make_pw_hash(name, pw)
-        u = User(name = name,
-                 pw_hash = pw_hash,
-                 email = email)
+        u = User(name=name,
+                 pw_hash=pw_hash,
+                 email=email)
         u.put()
         return u
 
@@ -35,11 +38,11 @@ class User(db.Model):
             return u
 
     @classmethod
-    def make_salt(cls, length = 5):
+    def make_salt(cls, length=5):
         return ''.join(random.choice(letters) for x in xrange(length))
 
     @classmethod
-    def make_pw_hash(cls, name, pw, salt = None):
+    def make_pw_hash(cls, name, pw, salt=None):
         if not salt:
             salt = cls.make_salt()
         h = hashlib.sha256(name + pw + salt).hexdigest()
@@ -52,14 +55,13 @@ class User(db.Model):
 
 
 class Post(db.Model):
-    title = db.StringProperty(required = True)
-    content = db.TextProperty(required = True)
-    author = db.ReferenceProperty(User, required = True, collection_name="posts")
-    likes = db.IntegerProperty(required = False,default=0)
-    liked_by_users = db.StringListProperty(required = True)
-    created = db.DateTimeProperty(auto_now_add = True)
-    last_modified = db.DateTimeProperty(auto_now = True)
-
+    title = db.StringProperty(required=True)
+    content = db.TextProperty(required=True)
+    author = db.ReferenceProperty(User, required=True, collection_name="posts")
+    likes = db.IntegerProperty(required=False, default=0)
+    liked_by_users = db.StringListProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
 
     @classmethod
     def by_id(cls, pid):
@@ -80,7 +82,7 @@ class Post(db.Model):
     @classmethod
     def add_post(cls, post_title, post_content, user):
 
-        p = Post(title = post_title,content=post_content,author=user)
+        p = Post(title=post_title, content=post_content, author=user)
         p.content = p.content.replace('\n', '<br>')
         p.put()
         return p
@@ -116,10 +118,12 @@ class Post(db.Model):
         c = Comment(post=p, user=u, content=comment_content)
         c.put()
 
+
 class Comment(db.Model):
-    post = db.ReferenceProperty(Post, required = True, default=None, collection_name="comments")
-    user = db.ReferenceProperty(User, required = True)
-    content = db.StringProperty(required = True,multiline=True)
+    post = db.ReferenceProperty(
+        Post, required=True, default=None, collection_name="comments")
+    user = db.ReferenceProperty(User, required=True)
+    content = db.StringProperty(required=True, multiline=True)
 
     @classmethod
     def by_id(cls, comment_id):

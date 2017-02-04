@@ -2,6 +2,7 @@ from base_handler import BaseHandler
 from models import User
 import re
 
+
 class RegisterHandler(BaseHandler):
 
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -24,7 +25,7 @@ class RegisterHandler(BaseHandler):
         any_error = False
 
         name_error = ""
-        if user_name == None or not self.valid_username(user_name):
+        if user_name is None or not self.valid_username(user_name):
             param_list['name_error'] = "Username not valid!"
             any_error = True
 
@@ -39,7 +40,7 @@ class RegisterHandler(BaseHandler):
             any_error = True
 
         email_error = ""
-        if user_email == None or not self.valid_email(user_email):
+        if user_email is None or not self.valid_email(user_email):
             param_list['email_error'] = "Email not valid!"
             any_error = True
 
@@ -63,6 +64,7 @@ class RegisterHandler(BaseHandler):
 
     def valid_email(self, email):
         return self.MAIL_RE.match(email)
+
 
 class LoginHandler(BaseHandler):
 
@@ -94,15 +96,18 @@ class LoginHandler(BaseHandler):
                 self.login(u)
                 self.redirect("/welcome")
 
+
 class LogoutHandler(BaseHandler):
 
     def get(self):
         self.logout()
         self.redirect('/login')
 
+
 class WelcomeHandler(BaseHandler):
     """Show a welcome page when user registered of logged in successfully
     """
+
     def get(self):
         if self.user:
             self.render("auth/welcome.html")

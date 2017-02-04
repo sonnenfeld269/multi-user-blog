@@ -1,5 +1,8 @@
-import webapp2, jinja2
-import os, hashlib, hmac
+import webapp2
+import jinja2
+import os
+import hashlib
+import hmac
 from models import User
 
 template_dir = os.path.join(os.path.dirname(__file__), '../templates')
@@ -8,6 +11,7 @@ jinja_env = jinja2.Environment(
 
 # a secret key for cookies
 SECRET = "uaophahsdfpoahsdfppncvfoefkyyxcvJSFMzzueri"
+
 
 class BaseHandler(webapp2.RequestHandler):
 
@@ -93,6 +97,7 @@ class BaseHandler(webapp2.RequestHandler):
             return val
         else:
             return None
+
 
 class MainPageHandler(BaseHandler):
 

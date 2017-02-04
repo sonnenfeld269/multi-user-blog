@@ -2,19 +2,19 @@ from base_handler import BaseHandler
 import webapp2
 from models import Post, User, Comment
 
-#### post-handlers
+# post-handlers
+
 
 class PostHandler(BaseHandler):
 
     """ Responsible for rendering multiple and single posts and comments. """
 
     def render_posts(self, **params):
-
         """Creates a string of all rendered posts and uses render to show
         them on the blog page.
         """
 
-        if params.has_key('user_posts'):
+        if "user_posts" in params:
             posts = params['user_posts']
         else:
             posts = Post.get_all()
@@ -45,43 +45,48 @@ class PostHandler(BaseHandler):
         AttributeError: 'NoneType' object has no attribute 'cookies'.
         Thats why I put render_comments into this PostHandler Class.
         """
-        #rendered_comments = PostCommentsHandler().render_comments()
+        # rendered_comments = PostCommentsHandler().render_comments()
 
-        if params.has_key('comment_to_edit'):
-            rendered_comments = self.render_comments(post=post,comment_to_edit=params['comment_to_edit'])
+        if "comment_to_edit" in params:
+            rendered_comments = self.render_comments(
+                post=post, comment_to_edit=params['comment_to_edit'])
         else:
-            rendered_comments = self.render_comments(post=post,comment_to_edit=None)
+            rendered_comments = self.render_comments(
+                post=post, comment_to_edit=None)
 
-        if params.has_key('show_comments'):
-            show_comments=params['show_comments']
+        if "show_comments" in params:
+            show_comments = params['show_comments']
         else:
-            show_comments=False
+            show_comments = False
 
         return self.render_str("blog/singlepost.html",
-                                p = post,
-                                comments=rendered_comments,
-                                show_comments=show_comments)
+                               p=post,
+                               comments=rendered_comments,
+                               show_comments=show_comments)
 
     def render_comments(self, post, comment_to_edit=None):
-
         """ Renders all comments of a single post. """
         rendered_comments = ""
         for comment in post.comments:
-            if comment_to_edit and comment.get_id() == comment_to_edit.get_id():
-                rendered_comments += self.render_str("blog/editcomment.html", comment=comment_to_edit)
+            if (comment_to_edit and
+                    comment.get_id() == comment_to_edit.get_id()):
+                rendered_comments += self.render_str(
+                    "blog/editcomment.html", comment=comment_to_edit)
             else:
-                rendered_comments += self.render_str("blog/singlecomment.html", p=post, comment=comment)
+                rendered_comments += self.render_str(
+                    "blog/singlecomment.html", p=post, comment=comment)
         return rendered_comments
+
 
 class BlogHandler(PostHandler):
 
     """ Responsible for forwarding the request coming from the "/blog" url """
 
     def get(self):
-
         """ Calls the method render_posts of the PostHandler class. """
 
         self.render_posts()
+
 
 class UserPostHandler(PostHandler):
 
@@ -90,6 +95,7 @@ class UserPostHandler(PostHandler):
     def get(self):
         user_posts = Post.get_by_user(self.user.get_id())
         self.render_posts(user_posts=user_posts)
+
 
 class AddPostHandler(BaseHandler):
 
@@ -133,6 +139,7 @@ class AddPostHandler(BaseHandler):
             p = Post.add_post(post_title, post_content, self.user)
             self.redirect('/blog/%s' % str(p.key().id()))
 
+
 class SinglePostHandler(PostHandler):
 
     """ Responsible for rendering a single post. """
@@ -144,6 +151,7 @@ class SinglePostHandler(PostHandler):
         """
         single_post = self.render_post(Post.by_id(int(post_id)))
         self.render("blog/permalink.html", single_post=single_post)
+
 
 class EditPostHandler(BaseHandler):
 
@@ -195,6 +203,7 @@ class EditPostHandler(BaseHandler):
             p = Post.update_post(int(post_id), post_title, post_content)
             self.redirect('/blog/%s' % str(p.get_id()))
 
+
 class LikePostHandler(BaseHandler):
 
     """ Responsible for adding a like to a single post. """
@@ -206,6 +215,7 @@ class LikePostHandler(BaseHandler):
         """
         Post.add_like(int(post_id), self.user.get_id())
         self.redirect('/blog')
+
 
 class DeletePostHandler(BaseHandler):
 
@@ -226,7 +236,7 @@ class DeletePostHandler(BaseHandler):
             self.render("/base.html", error="Not allowed to delete post.")
 
 
-#### comment-handlers
+# comment-handlers
 
 class PostCommentsHandler(PostHandler):
 
@@ -242,20 +252,24 @@ class PostCommentsHandler(PostHandler):
         3. redirect to "/blog"
         """
         comment_content = self.request.get("comment_content")
-        Post.add_comment(int(post_id), int(self.user.get_id()), comment_content)
+        Post.add_comment(int(post_id), int(
+            self.user.get_id()), comment_content)
         self.redirect("/blog/" + post_id + "/comments")
 
 show_comments = False
 
+
 class ShowCommentsHandler(PostHandler):
 
     def get(self, post_id):
-        self.render_posts(show_comments=True,post_id_comments = post_id)
+        self.render_posts(show_comments=True, post_id_comments=post_id)
+
 
 class HideCommentsHandler(PostHandler):
 
     def get(self, post_id):
-        self.render_posts(show_comments=False,post_id_comments = post_id)
+        self.render_posts(show_comments=False, post_id_comments=post_id)
+
 
 class CommentEditHandler(PostHandler):
 
@@ -265,7 +279,8 @@ class CommentEditHandler(PostHandler):
         post = Post.by_id(int(post_id))
         comment = Comment.by_id(int(comment_id))
         if self.user and self.user.get_id() == comment.user.get_id():
-            self.render_posts(comment_to_edit=comment, show_comments=True, post_id_comments = post_id)
+            self.render_posts(comment_to_edit=comment,
+                              show_comments=True, post_id_comments=post_id)
         else:
             self.render("/base.html", error="Not allowed to edit comment.")
 
@@ -274,6 +289,7 @@ class CommentEditHandler(PostHandler):
         comment = Comment.by_id(int(comment_id))
         comment.set_content(comment_content)
         self.redirect("/blog/" + post_id + "/comments")
+
 
 class CommentDeleteHandler(BaseHandler):
 
