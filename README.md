@@ -20,3 +20,7 @@ To read more about the concept and details of the implementation visit
 1. Clone the github project with `git clone https://github.com/sonnenfeld269/multi-user-blog.git`
 2. Go inside the folder with `cd multi-user-blog`
 3. Start the programm by running `dev_appserver.py app.yaml`
+
+## Live version
+
+To see a live implementation of the blog just visit [https://multi-user-blog-153022.appspot.com](https://multi-user-blog-153022.appspot.com/).
