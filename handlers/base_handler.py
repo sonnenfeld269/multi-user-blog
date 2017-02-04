@@ -4,13 +4,11 @@ import os
 import hashlib
 import hmac
 from models import User
+from handlers.secret_key import SECRET
 
 template_dir = os.path.join(os.path.dirname(__file__), '../templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-# a secret key for cookies
-SECRET = "uaophahsdfpoahsdfppncvfoefkyyxcvJSFMzzueri"
 
 
 class BaseHandler(webapp2.RequestHandler):

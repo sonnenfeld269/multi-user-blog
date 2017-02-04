@@ -1,2 +1,4 @@
 todo.txt
 *.pyc
+*.pu
+handlers/secret_key.py
