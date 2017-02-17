@@ -13,12 +13,17 @@
         {{p.content | safe}}
     </div>
     <div class="col-xs-12">
-        <div class="likebox">
-            <span class="like_text">{{p.likes}}</span> {% if user %}
+        <div class="activity-box">
+            <span class="like-count">{{p.likes}}</span>
+            {% if user %}
             <a class="btn btn-default likebutton" href="/blog/{{p.get_id()}}/like">
                 <i class="fa fa-heart-o like-symbol" aria-hidden="true"></i>
             </a>
+            {% else %}
+            <span class="like-symbol">{% if p.likes==1 %}Like{% else %}Likes{% endif %}</span>
             {% endif %}
+
+            <span class="comment-count">{{p.comments.count()}}</span>
             <a class="btn btn-default commentbutton" href="#">
                 <i class="fa fa-comments-o comment-symbol" aria-hidden="true"></i>
             </a>

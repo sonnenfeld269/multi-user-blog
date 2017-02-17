@@ -5,12 +5,7 @@ body {
     font-weight: bold;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: 'Indie Flower', serif;
     font-weight: bold;
     letter-spacing: 1px;
@@ -23,6 +18,7 @@ h6 {
 .row {
     padding: 30px 0 0 0;
 }
+
 
 /*** NAV ***/
 
@@ -57,6 +53,7 @@ h6 {
     color: #dd5b5b;
 }
 
+
 /*** CONTENT ***/
 
 .seperator {
@@ -77,8 +74,8 @@ h6 {
 }
 
 .single_comment {
-  border-left: 2px solid rgba(51, 122, 183, 0.58);
-  padding: 0 0 0 12px;
+    border-left: 2px solid rgba(51, 122, 183, 0.58);
+    padding: 0 0 0 12px;
 }
 
 .title, .title:hover {
@@ -86,8 +83,9 @@ h6 {
 }
 
 .commentbox {
-  padding: 20px;
+    padding: 20px;
 }
+
 .commentbox textarea {
     border: 2px solid rgba(51, 122, 183, 0.58);
     padding: 8px;
@@ -107,39 +105,42 @@ h6 {
 }
 
 .comment-delete-link {
-  padding: 0px;
-  border: 0px;
-}
-
-.commentbutton {
-  margin-left: 10px;
+    padding: 0px;
+    border: 0px;
 }
 
 .likebutton, .commentbutton {
-  padding: 0;
-  border: 0px;
+    padding: 0;
+    border: 0px;
 }
 
-.likebutton:hover, .commentbutton:hover {
-  border: 0px;
-  background-color: transparent;
-}
-.comment-symbol {
-  font-size: 25px;
-  color: darkcyan;
+.likebutton:hover, .commentbutton:hover, .commentbutton:focus, .commentbutton:active {
+    border: 0px;
+    background-color: transparent;
 }
 
-.likebox {
+.activity-box {
+    font-family: "Indie Flower";
     font-size: 25px;
     margin: 20px 0 0 0;
 }
 
-.like_text {
+.comment-symbol {
+    font-size: 20px;
+    color: cornflowerblue;
+}
+
+.like-symbol {
+    font-size: 20px;
+    color: chocolate;
+}
+
+.like-count {
     font-weight: normal;
     color: chocolate;
 }
 
-.like-symbol {
-  font-size: 22px;
-  color: chocolate;
+.comment-count {
+    font-weight: normal;
+    color: cornflowerblue;
 }
