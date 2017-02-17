@@ -54,15 +54,9 @@ class PostHandler(BaseHandler):
             rendered_comments = self.render_comments(
                 post=post, comment_to_edit=None)
 
-        if "show_comments" in params:
-            show_comments = params['show_comments']
-        else:
-            show_comments = False
-
         return self.render_str("blog/singlepost.html",
                                p=post,
-                               comments=rendered_comments,
-                               show_comments=show_comments)
+                               comments=rendered_comments)
 
     def render_comments(self, post, comment_to_edit=None):
         """ Renders all comments of a single post. """
@@ -150,7 +144,8 @@ class SinglePostHandler(PostHandler):
         2. return a single post by rendering "permalink.html"
         """
         single_post = self.render_post(Post.by_id(int(post_id)))
-        self.render("blog/permalink.html", single_post=single_post)
+        self.render("blog/permalink.html",
+                    single_post=single_post)
 
 
 class EditPostHandler(BaseHandler):
@@ -165,17 +160,6 @@ class EditPostHandler(BaseHandler):
         4. else redirect to base.html with error message
         """
         post = Post.by_id(int(post_id))
-
-        """
-        TODO - Question:
-        Is it ok if I delete this part below, because the post author will be validated
-        below already on line 178?
-        """
-        """
-        if not post.author:
-            self.error(404)
-            return
-        """
 
         if self.user and post.author.get_id() == self.user.get_id():
             post.content = post.content.replace('<br>', '\n')
@@ -263,20 +247,6 @@ class PostCommentsHandler(PostHandler):
             self.user.get_id()), comment_content)
         self.redirect("/blog/" + post_id + "/comments")
 
-show_comments = False
-
-
-class ShowCommentsHandler(PostHandler):
-
-    def get(self, post_id):
-        self.render_posts(show_comments=True, post_id_comments=post_id)
-
-
-class HideCommentsHandler(PostHandler):
-
-    def get(self, post_id):
-        self.render_posts(show_comments=False, post_id_comments=post_id)
-
 
 class CommentEditHandler(PostHandler):
 
@@ -287,7 +257,7 @@ class CommentEditHandler(PostHandler):
         comment = Comment.by_id(int(comment_id))
         if self.user and self.user.get_id() == comment.user.get_id():
             self.render_posts(comment_to_edit=comment,
-                              show_comments=True, post_id_comments=post_id)
+                              post_id_comments=post_id)
         else:
             self.render("/base.html", error="Not allowed to edit comment.")
 
